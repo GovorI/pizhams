@@ -43,4 +43,7 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items: CreateOrderItemDto[];
+
+  // Optional - will be set from authenticated user if not provided
+  userId?: string;
 }

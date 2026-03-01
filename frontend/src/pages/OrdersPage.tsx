@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@shared/hooks/redux';
+import { useGetMyOrdersQuery } from '@shared/api/api';
 import { Card, Container, Table, Badge, Spinner, Alert, Button, Modal } from 'react-bootstrap';
 import type { RootState } from '@app/store';
 
@@ -28,41 +29,18 @@ interface Order {
 
 export function OrdersPage() {
   const navigate = useNavigate();
-  const { user, token, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
+  const { data: orders = [], isLoading, error } = useGetMyOrdersQuery(undefined, {
+    skip: !isAuthenticated,
+  });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
-      return;
     }
-    fetchOrders();
   }, [isAuthenticated, navigate]);
-
-  const fetchOrders = async () => {
-    try {
-      const response = await fetch(`${API_URL}/orders/my`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch orders');
-      }
-
-      const data = await response.json();
-      setOrders(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch orders');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleShowDetails = (order: Order) => {
     setSelectedOrder(order);
@@ -88,7 +66,7 @@ export function OrdersPage() {
     return null;
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Container className="py-5 text-center">
         <Spinner animation="border" variant="primary" />
@@ -102,17 +80,8 @@ export function OrdersPage() {
       <h1 className="mb-4">📦 Мои заказы</h1>
 
       {error && (
-        <Alert variant="warning">
-          {error}
-          <div className="mt-2">
-            <small>
-              Примечание: Просмотр заказов доступен только для администраторов.
-              <br />
-              <Button variant="link" onClick={() => navigate('/')} className="p-0">
-                Вернуться в каталог
-              </Button>
-            </small>
-          </div>
+        <Alert variant="danger">
+          {('message' in error) ? error.message : 'Failed to load orders'}
         </Alert>
       )}
 
@@ -142,7 +111,7 @@ export function OrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
+                {orders.map((order: Order) => (
                   <tr key={order.id}>
                     <td>{order.id.slice(0, 8)}...</td>
                     <td>{new Date(order.createdAt).toLocaleDateString('ru-RU')}</td>

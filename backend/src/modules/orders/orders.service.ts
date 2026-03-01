@@ -59,6 +59,13 @@ export class OrdersService {
     });
   }
 
+  async findByUserId(userId: string): Promise<Order[]> {
+    return await this.orderRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findOne(id: string): Promise<Order> {
     const order = await this.orderRepository.findOne({ where: { id } });
 

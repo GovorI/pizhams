@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
 import { useCreateOrderMutation } from '@shared/api/api';
@@ -24,9 +24,28 @@ export function CheckoutPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { items } = useAppSelector((state: RootState) => state.cart);
+  const { isAuthenticated, user, token } = useAppSelector((state: RootState) => state.auth);
   const [createOrder, { isLoading, isError, error, isSuccess }] = useCreateOrderMutation();
   const [formData, setFormData] = useState<OrderFormData>(initialFormData);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/checkout' } });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Pre-fill form with user data if available
+  useEffect(() => {
+    if (user?.email) {
+      setFormData(prev => ({
+        ...prev,
+        customerEmail: user.email,
+        customerName: user.email.split('@')[0], // Use email prefix as name
+      }));
+    }
+  }, [user]);
 
   const total = items.reduce(
     (sum, item) => sum + Number(item.product.price) * item.quantity,

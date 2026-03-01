@@ -25,11 +25,17 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Создать новый заказ' })
   @ApiResponse({ status: 201, description: 'Заказ успешно создан', type: Order })
   @ApiResponse({ status: 400, description: 'Некорректные данные' })
-  create(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
-    return this.ordersService.create(createOrderDto);
+  async create(@Request() req, @Body() createOrderDto: CreateOrderDto): Promise<Order> {
+    // Add userId from authenticated user
+    const orderWithUser = {
+      ...createOrderDto,
+      userId: req.user.id,
+    };
+    return await this.ordersService.create(orderWithUser);
   }
 
   @Get('my')
@@ -37,9 +43,7 @@ export class OrdersController {
   @ApiOperation({ summary: 'Получить мои заказы' })
   @ApiResponse({ status: 200, description: 'Список заказов пользователя' })
   async findMyOrders(@Request() req): Promise<Order[]> {
-    // В реальном приложении нужно фильтровать по userId
-    // Сейчас возвращаем все заказы
-    return await this.ordersService.findAll();
+    return await this.ordersService.findByUserId(req.user.id);
   }
 
   @Get()

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 export enum OrderStatus {
   NEW = 'new',
@@ -31,6 +32,13 @@ export class Order {
 
   @Column({ name: 'customer_address', type: 'text' })
   customerAddress: string;
+
+  @Column({ name: 'user_id', nullable: true })
+  userId: string;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ name: 'items', type: 'jsonb' })
   items: OrderItem[];

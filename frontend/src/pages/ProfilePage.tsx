@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
 import { logout } from '@entities/user/user.slice';
+import { useGetMyOrdersQuery } from '@shared/api/api';
 import {
-  Container, Card, Form, Button, Alert, Spinner, Row, Col,
+  Container, Card, Form, Button, Alert, Spinner, Row, Col, Badge,
 } from 'react-bootstrap';
 import type { RootState } from '@app/store';
 
@@ -13,15 +14,16 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user, token, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
-  
+  const { data: orders = [] } = useGetMyOrdersQuery(undefined, { skip: !isAuthenticated });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  
+
   const [profileData, setProfileData] = useState({
     email: '',
   });
-  
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -117,13 +119,9 @@ export function ProfilePage() {
     navigate('/');
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
     <Container className="py-4">
-      <h1 className="mb-4">Профиль пользователя</h1>
+      <h1 className="mb-4">👤 Профиль пользователя</h1>
 
       {error && (
         <Alert variant="danger" onClose={() => setError(null)} dismissible>
@@ -137,11 +135,47 @@ export function ProfilePage() {
         </Alert>
       )}
 
+      {/* Profile Header with Avatar */}
+      <Card className="mb-4">
+        <Card.Body className="text-center">
+          <div className="mb-3">
+            <div
+              style={{
+                width: '120px',
+                height: '120px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #6f42c1, #a855f7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto',
+                fontSize: '48px',
+                color: 'white',
+              }}
+            >
+              {user?.email?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          </div>
+          <h3>{user?.email || 'Пользователь'}</h3>
+          <Badge bg={user?.role === 'admin' ? 'danger' : 'primary'} className="mt-2">
+            {user?.role === 'admin' ? '👑 Администратор' : '👤 Пользователь'}
+          </Badge>
+          <div className="mt-3">
+            <Badge bg="info" className="me-2">
+              📦 Заказов: {orders.length}
+            </Badge>
+            <Badge bg="success">
+              ✅ Активен
+            </Badge>
+          </div>
+        </Card.Body>
+      </Card>
+
       <Row>
         <Col md={6}>
           <Card className="mb-4">
             <Card.Header>
-              <Card.Title>Личная информация</Card.Title>
+              <Card.Title>✏️ Личная информация</Card.Title>
             </Card.Header>
             <Card.Body>
               <Form onSubmit={handleProfileUpdate}>
@@ -168,6 +202,7 @@ export function ProfilePage() {
                   variant="primary"
                   type="submit"
                   disabled={loading}
+                  className="w-100"
                 >
                   {loading ? (
                     <>
@@ -175,7 +210,7 @@ export function ProfilePage() {
                       Сохранение...
                     </>
                   ) : (
-                    'Сохранить изменения'
+                    '💾 Сохранить изменения'
                   )}
                 </Button>
               </Form>
@@ -186,7 +221,7 @@ export function ProfilePage() {
         <Col md={6}>
           <Card className="mb-4">
             <Card.Header>
-              <Card.Title>Смена пароля</Card.Title>
+              <Card.Title>🔐 Смена пароля</Card.Title>
             </Card.Header>
             <Card.Body>
               <Form onSubmit={handlePasswordChange}>
@@ -224,6 +259,7 @@ export function ProfilePage() {
                   variant="primary"
                   type="submit"
                   disabled={loading}
+                  className="w-100"
                 >
                   {loading ? (
                     <>
@@ -231,7 +267,7 @@ export function ProfilePage() {
                       Сохранение...
                     </>
                   ) : (
-                    'Изменить пароль'
+                    '🔑 Изменить пароль'
                   )}
                 </Button>
               </Form>
@@ -240,11 +276,22 @@ export function ProfilePage() {
         </Col>
       </Row>
 
+      {/* Quick Actions */}
       <Card>
+        <Card.Header>
+          <Card.Title>⚡ Быстрые действия</Card.Title>
+        </Card.Header>
         <Card.Body>
-          <Card.Title>Действия</Card.Title>
-          <Button variant="outline-secondary" className="me-2" onClick={() => navigate('/orders')}>
+          <Button variant="outline-primary" className="me-2" onClick={() => navigate('/orders')}>
             📦 Мои заказы
+          </Button>
+          {user?.role === 'admin' && (
+            <Button variant="outline-danger" className="me-2" onClick={() => navigate('/admin')}>
+              ⚙️ Админ-панель
+            </Button>
+          )}
+          <Button variant="outline-secondary" className="me-2" onClick={() => navigate('/')}>
+            🛍️ В каталог
           </Button>
           <Button variant="outline-danger" onClick={handleLogout}>
             🚪 Выйти
