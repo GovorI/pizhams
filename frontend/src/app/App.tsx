@@ -5,6 +5,7 @@ import { store } from './store';
 import { AppRoutes } from './AppRoutes';
 import { Header } from '@widgets/Header';
 import { CartSidebar } from '@widgets/CartSidebar';
+import { ToastProvider } from '@shared/components/ToastProvider';
 import { fetchMe } from '@entities/user/user.slice';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -35,6 +36,7 @@ export function App() {
     <Provider store={store}>
       <BrowserRouter>
         <AppContent />
+        <ToastProvider />
       </BrowserRouter>
     </Provider>
   );

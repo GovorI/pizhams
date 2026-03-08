@@ -10,6 +10,8 @@ import { ProfilePage } from '@pages/ProfilePage';
 import { ForgotPasswordPage } from '@pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@pages/ResetPasswordPage';
 import { OrdersPage } from '@pages/OrdersPage';
+import { UsersPage } from '@pages/UsersPage';
+import { AdminReviewsPage } from '@pages/AdminReviewsPage';
 
 export function AppRoutes() {
   return (
@@ -23,6 +25,8 @@ export function AppRoutes() {
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/admin/users" element={<UsersPage />} />
+      <Route path="/admin/reviews" element={<AdminReviewsPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
     </Routes>

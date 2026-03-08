@@ -109,7 +109,7 @@ export function Dashboard() {
             <Card.Body>
               <Card.Title>💰 Сегодня</Card.Title>
               <Card.Text style={{ fontSize: '1.5em', fontWeight: 'bold' }}>
-                {stats?.revenue.today.toLocaleString('ru-RU')} ₽
+                {stats?.revenue.today.toLocaleString('ru-RU')} Br
               </Card.Text>
             </Card.Body>
           </Card>
@@ -119,7 +119,7 @@ export function Dashboard() {
             <Card.Body>
               <Card.Title>📅 Эта неделя</Card.Title>
               <Card.Text style={{ fontSize: '1.5em', fontWeight: 'bold' }}>
-                {stats?.revenue.thisWeek.toLocaleString('ru-RU')} ₽
+                {stats?.revenue.thisWeek.toLocaleString('ru-RU')} Br
               </Card.Text>
             </Card.Body>
           </Card>
@@ -129,7 +129,7 @@ export function Dashboard() {
             <Card.Body>
               <Card.Title>📆 Этот месяц</Card.Title>
               <Card.Text style={{ fontSize: '1.5em', fontWeight: 'bold' }}>
-                {stats?.revenue.thisMonth.toLocaleString('ru-RU')} ₽
+                {stats?.revenue.thisMonth.toLocaleString('ru-RU')} Br
               </Card.Text>
             </Card.Body>
           </Card>
@@ -139,7 +139,7 @@ export function Dashboard() {
             <Card.Body>
               <Card.Title>💵 Всего</Card.Title>
               <Card.Text style={{ fontSize: '1.5em', fontWeight: 'bold' }}>
-                {stats?.revenue.total.toLocaleString('ru-RU')} ₽
+                {stats?.revenue.total.toLocaleString('ru-RU')} Br
               </Card.Text>
             </Card.Body>
           </Card>
@@ -240,7 +240,7 @@ export function Dashboard() {
                     {stats?.recentOrders.map((order) => (
                       <tr key={order.id}>
                         <td>{order.customerName}</td>
-                        <td>{order.total} ₽</td>
+                        <td>{order.total} Br</td>
                         <td>
                           <Badge bg={
                             order.status === 'new' ? 'warning' :
@@ -283,7 +283,7 @@ export function Dashboard() {
                       <tr key={index}>
                         <td>{product.name}</td>
                         <td>{product.soldCount} шт.</td>
-                        <td>{product.revenue.toLocaleString('ru-RU')} ₽</td>
+                        <td>{product.revenue.toLocaleString('ru-RU')} Br</td>
                       </tr>
                     ))}
                   </tbody>

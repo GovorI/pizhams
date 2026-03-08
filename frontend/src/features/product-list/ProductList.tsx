@@ -2,6 +2,7 @@ import { useEffect, useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
 import { fetchProducts, setFilters } from '@entities/products/products.slice';
 import { ProductCard } from './ProductCard';
+import { ProductCardSkeleton } from './ProductCardSkeleton';
 import { ProductFilters } from './ProductFilters';
 import { Pagination } from './Pagination';
 import type { ProductFilters as ProductFiltersType } from '@shared/types/product.types';
@@ -61,7 +62,13 @@ export function ProductList() {
       <ProductFilters onFilterChange={handleFilterChange} />
 
       {loading ? (
-        <div className="text-center py-5">Загрузка...</div>
+        <div className="row g-4">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="col-md-4 col-lg-3">
+              <ProductCardSkeleton />
+            </div>
+          ))}
+        </div>
       ) : filteredItems.length === 0 ? (
         <div className="text-center py-5">
           {items.length === 0 ? 'Товары не найдены' : 'По заданным фильтрам товаров не найдено'}

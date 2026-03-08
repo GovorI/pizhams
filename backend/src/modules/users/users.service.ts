@@ -2,7 +2,6 @@ import { Injectable, NotFoundException, ConflictException, BadRequestException }
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
-import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -13,8 +12,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(PasswordResetToken)
-    private readonly resetTokenRepository: Repository<PasswordResetToken>,
     private readonly dataSource: DataSource,
     private readonly emailService: EmailService,
   ) {}
@@ -95,67 +92,80 @@ export class UsersService {
     await this.userRepository.save(user);
   }
 
-  async requestPasswordReset(email: string): Promise<PasswordResetToken | null> {
+  async requestPasswordReset(email: string): Promise<void> {
     const user = await this.findByEmail(email);
     if (!user) {
       // Don't reveal if email exists for security
-      return null;
+      return;
     }
 
     // Invalidate any existing tokens
-    await this.resetTokenRepository
-      .createQueryBuilder()
-      .update()
-      .set({ used: true })
-      .where('userId = :userId', { userId: user.id })
-      .andWhere('used = :used', { used: false })
-      .execute();
+    await this.dataSource.query(
+      `UPDATE password_reset_tokens SET used = true WHERE user_id = $1`,
+      [user.id],
+    );
 
     // Create new token
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1); // 1 hour expiry
 
-    const resetToken = this.resetTokenRepository.create({
-      token,
-      userId: user.id,
-      expiresAt,
-      used: false,
-    });
-
-    const savedToken = await this.resetTokenRepository.save(resetToken);
+    await this.dataSource.query(
+      `INSERT INTO password_reset_tokens (token, user_id, expires_at, used) VALUES ($1, $2, $3, false)`,
+      [token, user.id, expiresAt],
+    );
 
     // Send password reset email
     await this.emailService.sendPasswordReset(user.email, user.email, token);
-
-    return savedToken;
   }
 
   async resetPassword(token: string, newPassword: string): Promise<boolean> {
-    const resetToken = await this.resetTokenRepository.findOne({
-      where: { token, used: false },
-      relations: ['user'],
-    });
+    const resetToken = await this.dataSource.query(
+      `SELECT * FROM password_reset_tokens WHERE token = $1 AND used = false AND expires_at > NOW()`,
+      [token],
+    );
 
-    if (!resetToken || resetToken.expiresAt < new Date()) {
+    if (!resetToken || resetToken.length === 0) {
       return false;
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    resetToken.user.password = hashedPassword;
-    await this.userRepository.save(resetToken.user);
+    const userId = resetToken[0].user_id;
+    const user = await this.findById(userId);
 
-    resetToken.used = true;
-    await this.resetTokenRepository.save(resetToken);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await this.userRepository.save(user);
+
+    // Mark token as used
+    await this.dataSource.query(
+      `UPDATE password_reset_tokens SET used = true WHERE token = $1`,
+      [token],
+    );
 
     return true;
   }
 
   async validateResetToken(token: string): Promise<boolean> {
-    const resetToken = await this.resetTokenRepository.findOne({
-      where: { token, used: false },
-    });
+    const resetToken = await this.dataSource.query(
+      `SELECT * FROM password_reset_tokens WHERE token = $1 AND used = false AND expires_at > NOW()`,
+      [token],
+    );
 
-    return !!(resetToken && resetToken.expiresAt > new Date());
+    return resetToken && resetToken.length > 0;
+  }
+
+  async updateRole(id: string, role: UserRole): Promise<User> {
+    const user = await this.findById(id);
+    user.role = role;
+    return await this.userRepository.save(user);
+  }
+
+  async ban(id: string): Promise<void> {
+    await this.userRepository.softDelete(id);
+  }
+
+  async unban(id: string): Promise<User> {
+    await this.userRepository.restore(id);
+    return await this.findById(id);
   }
 }

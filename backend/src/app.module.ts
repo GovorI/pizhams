@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { databaseConfig, appConfig, authConfig } from './config';
@@ -10,9 +11,14 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
 import { EmailModule } from './modules/email/email.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 1 minute
+      limit: 10,  // 10 requests per minute
+    }]),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig, authConfig],
@@ -38,6 +44,7 @@ import { StatisticsModule } from './modules/statistics/statistics.module';
     FilesModule,
     EmailModule,
     StatisticsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

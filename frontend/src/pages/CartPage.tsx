@@ -80,7 +80,7 @@ export function CartPage() {
                     />
                   </Col>
                   <Col md={2}>
-                    <strong>{(Number(item.product.price) * item.quantity).toFixed(0)} ₽</strong>
+                    <strong>{(Number(item.product.price) * item.quantity).toFixed(0)} Br</strong>
                   </Col>
                   <Col md={2} className="text-end">
                     <Button
@@ -102,7 +102,7 @@ export function CartPage() {
             <Card.Body>
               <Card.Title>Итого</Card.Title>
               <Card.Text className="h4 text-primary mb-3">
-                {total.toFixed(0)} ₽
+                {total.toFixed(0)} Br
               </Card.Text>
               <Button variant="primary" className="w-100 mb-2" onClick={handleCheckout}>
                 Оформить заказ

@@ -3,12 +3,16 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api');
+
+  // Security: Helmet for security headers
+  app.use(helmet());
 
   // Serve static files from uploads directory
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
@@ -23,9 +27,12 @@ async function bootstrap() {
     }),
   );
 
+  // Security: CORS configuration
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   const config = new DocumentBuilder()

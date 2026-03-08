@@ -115,7 +115,7 @@ export function OrdersPage() {
                   <tr key={order.id}>
                     <td>{order.id.slice(0, 8)}...</td>
                     <td>{new Date(order.createdAt).toLocaleDateString('ru-RU')}</td>
-                    <td><strong>{order.total} ₽</strong></td>
+                    <td><strong>{order.total} Br</strong></td>
                     <td>{getStatusBadge(order.status)}</td>
                     <td>
                       <Button
@@ -161,15 +161,15 @@ export function OrdersPage() {
                       <td>{item.productName}</td>
                       <td>{item.size}</td>
                       <td>{item.quantity}</td>
-                      <td>{item.price} ₽</td>
-                      <td>{item.price * item.quantity} ₽</td>
+                      <td>{item.price} Br</td>
+                      <td>{item.price * item.quantity} Br</td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
               
               <div className="text-end mt-3">
-                <h4>Итого: <strong>{selectedOrder.total} ₽</strong></h4>
+                <h4>Итого: <strong>{selectedOrder.total} Br</strong></h4>
               </div>
 
               <hr />

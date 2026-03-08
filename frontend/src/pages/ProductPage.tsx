@@ -3,9 +3,10 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
 import { fetchProductById, clearSelectedProduct } from '@entities/products/products.slice';
 import { addItem, openCart } from '@entities/cart/cart.slice';
-import { Button, Card, Container, Row, Col, Spinner, Alert, Form } from 'react-bootstrap';
+import { Button, Card, Container, Row, Col, Spinner, Alert, Form, Badge } from 'react-bootstrap';
 import type { ProductSize } from '@shared/types/product.types';
 import type { RootState } from '@app/store';
+import { Reviews } from '@features/reviews/Reviews';
 
 export function ProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -67,7 +68,7 @@ export function ProductPage() {
         </Col>
         <Col md={6}>
           <h1 className="mb-3">{selectedProduct.name}</h1>
-          <h2 className="text-primary mb-4">{selectedProduct.price} ₽</h2>
+          <h2 className="text-primary mb-4">{selectedProduct.price.toLocaleString('ru-RU')} Br</h2>
           
           <p className="text-muted mb-4">{selectedProduct.description}</p>
           
@@ -107,6 +108,13 @@ export function ProductPage() {
           ) : (
             <Alert variant="danger">Нет в наличии</Alert>
           )}
+        </Col>
+      </Row>
+
+      {/* Reviews Section */}
+      <Row className="mt-5">
+        <Col>
+          <Reviews productId={id!} />
         </Col>
       </Row>
     </Container>

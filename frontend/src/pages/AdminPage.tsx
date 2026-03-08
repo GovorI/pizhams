@@ -28,16 +28,42 @@ interface Order {
   createdAt: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+  role: 'user' | 'admin';
+  createdAt: string;
+}
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  userName: string;
+  userId: string;
+  productId: string;
+  isApproved: boolean;
+  createdAt: string;
+}
+
 export function AdminPage() {
   const navigate = useNavigate();
   const { user, token, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'reviews'>('dashboard');
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -60,6 +86,8 @@ export function AdminPage() {
     }
     fetchProducts();
     fetchOrders();
+    fetchUsers();
+    fetchReviews();
   }, [isAuthenticated, user, navigate]);
 
   const fetchProducts = async () => {
@@ -88,6 +116,34 @@ export function AdminPage() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(`${API_URL}/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setUsers(data);
+    } catch (err) {
+      setError('Failed to fetch users');
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch(`${API_URL}/reviews`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setReviews(data);
+    } catch (err) {
+      setError('Failed to fetch reviews');
+    }
+  };
+
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
       const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
@@ -106,6 +162,32 @@ export function AdminPage() {
       fetchOrders();
     } catch (err: any) {
       setError(err.message || 'Failed to update order status');
+    }
+  };
+
+  const handleExportCsv = async () => {
+    try {
+      const response = await fetch(`${API_URL}/orders/export/csv`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export orders');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'orders.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError(err.message || 'Failed to export orders');
     }
   };
 
@@ -276,6 +358,11 @@ export function AdminPage() {
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Админ-панель</h1>
+        {activeTab === 'orders' && (
+          <Button variant="success" onClick={handleExportCsv}>
+            📊 Экспорт в CSV
+          </Button>
+        )}
         {activeTab === 'products' && (
           <Button variant="primary" onClick={() => handleOpenModal()}>
             + Добавить товар
@@ -293,6 +380,16 @@ export function AdminPage() {
         <Nav.Item>
           <Nav.Link eventKey="orders">Заказы ({orders.length})</Nav.Link>
         </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="users">
+            👥 Пользователи ({users.length})
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="reviews">
+            ⭐ Отзывы ({reviews.length})
+          </Nav.Link>
+        </Nav.Item>
       </Nav>
 
       {error && (
@@ -301,9 +398,9 @@ export function AdminPage() {
         </Alert>
       )}
 
-      {activeTab === 'dashboard' ? (
-        <Dashboard />
-      ) : activeTab === 'products' ? (
+      {activeTab === 'dashboard' && <Dashboard />}
+
+      {activeTab === 'products' && (
         <Card>
           <Card.Body>
             <Table responsive hover>
@@ -335,7 +432,7 @@ export function AdminPage() {
                     <td>
                       <Badge bg="info">{product.category}</Badge>
                     </td>
-                    <td>{product.price} ₽</td>
+                    <td>{product.price} Br</td>
                     <td>
                       {product.sizes.map((size) => (
                         <Badge key={size} bg="secondary" className="me-1">
@@ -367,7 +464,9 @@ export function AdminPage() {
             </Table>
           </Card.Body>
         </Card>
-      ) : (
+      )}
+
+      {activeTab === 'orders' && (
         <Card>
           <Card.Body>
             <Table responsive hover>
@@ -391,7 +490,7 @@ export function AdminPage() {
                       <small className="text-muted">{order.customerEmail}</small>
                     </td>
                     <td>{order.customerPhone}</td>
-                    <td><strong>{order.total} ₽</strong></td>
+                    <td><strong>{order.total} Br</strong></td>
                     <td>
                       <Form.Select
                         size="sm"
@@ -410,7 +509,10 @@ export function AdminPage() {
                       <Button
                         variant="outline-info"
                         size="sm"
-                        onClick={() => alert(`Заказ #${order.id.slice(0, 8)}\n\n${order.items.map(i => `- ${i.productName} x${i.quantity} (${i.size})`).join('\n')}\n\nАдрес: ${order.customerAddress}`)}
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setShowOrderModal(true);
+                        }}
                       >
                         📋 Детали
                       </Button>
@@ -428,7 +530,151 @@ export function AdminPage() {
         </Card>
       )}
 
-      {/* Modal for Create/Edit */}
+      {activeTab === 'users' && (
+        <Card>
+          <Card.Body>
+            <Table responsive hover>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Роль</th>
+                  <th>Дата регистрации</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.email}</td>
+                    <td>
+                      <Badge bg={user.role === 'admin' ? 'danger' : 'primary'}>
+                        {user.role === 'admin' ? '👑 Администратор' : '👤 Пользователь'}
+                      </Badge>
+                    </td>
+                    <td>{new Date(user.createdAt).toLocaleDateString('ru-RU')}</td>
+                    <td>
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setShowRoleModal(true);
+                        }}
+                      >
+                        ✏️ Роль
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            {users.length === 0 && (
+              <div className="text-center py-5 text-muted">
+                Пользователей пока нет
+              </div>
+            )}
+          </Card.Body>
+        </Card>
+      )}
+
+      {activeTab === 'reviews' && (
+        <Card>
+          <Card.Body>
+            <Table responsive hover>
+              <thead>
+                <tr>
+                  <th>Рейтинг</th>
+                  <th>Товар</th>
+                  <th>Пользователь</th>
+                  <th>Комментарий</th>
+                  <th>Статус</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reviews.map((review) => (
+                  <tr key={review.id}>
+                    <td>
+                      <div style={{ display: 'flex', gap: '2px' }}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} style={{ color: star <= review.rating ? '#fbbf24' : '#d1d5db' }}>
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td>
+                      <Badge bg="info">{review.productId.slice(0, 8)}...</Badge>
+                    </td>
+                    <td>{review.userName || 'Аноним'}</td>
+                    <td style={{ maxWidth: '300px' }}>
+                      {review.comment || <em className="text-muted">Без комментария</em>}
+                    </td>
+                    <td>
+                      <Badge bg={review.isApproved ? 'success' : 'warning'}>
+                        {review.isApproved ? '✅ Одобрено' : '⏳ На модерации'}
+                      </Badge>
+                    </td>
+                    <td>
+                      {!review.isApproved ? (
+                        <Button
+                          variant="success"
+                          size="sm"
+                          className="me-2"
+                          onClick={async () => {
+                            try {
+                              await fetch(`${API_URL}/reviews/${review.id}`, {
+                                method: 'PATCH',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({ isApproved: true }),
+                              });
+                              fetchReviews();
+                            } catch (err: any) {
+                              setError(err.message);
+                            }
+                          }}
+                        >
+                          ✅ Одобрить
+                        </Button>
+                      ) : null}
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={async () => {
+                          if (!confirm('Удалить отзыв?')) return;
+                          try {
+                            await fetch(`${API_URL}/reviews/${review.id}`, {
+                              method: 'DELETE',
+                              headers: {
+                                'Authorization': `Bearer ${token}`,
+                              },
+                            });
+                            fetchReviews();
+                          } catch (err: any) {
+                            setError(err.message);
+                          }
+                        }}
+                      >
+                        🗑️ Удалить
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            {reviews.length === 0 && (
+              <div className="text-center py-5 text-muted">
+                Отзывов пока нет
+              </div>
+            )}
+          </Card.Body>
+        </Card>
+      )}
+
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
@@ -460,7 +706,7 @@ export function AdminPage() {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Цена (₽)</Form.Label>
+              <Form.Label>Цена (Br)</Form.Label>
               <Form.Control
                 name="price"
                 type="number"
@@ -636,6 +882,131 @@ export function AdminPage() {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* Order Details Modal */}
+      <Modal show={showOrderModal} onHide={() => setShowOrderModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            📦 Заказ #{selectedOrder?.id.slice(0, 8)}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedOrder && (
+            <>
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Информация о клиенте</h6>
+                <Card className="bg-light border-0">
+                  <Card.Body>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <p className="mb-1"><strong>Имя:</strong> {selectedOrder.customerName}</p>
+                        <p className="mb-1"><strong>Email:</strong> {selectedOrder.customerEmail}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <p className="mb-1"><strong>Телефон:</strong> {selectedOrder.customerPhone}</p>
+                        <p className="mb-1"><strong>Дата:</strong> {new Date(selectedOrder.createdAt).toLocaleString('ru-RU')}</p>
+                      </div>
+                    </div>
+                    <p className="mb-0 mt-2"><strong>Адрес доставки:</strong> {selectedOrder.customerAddress}</p>
+                  </Card.Body>
+                </Card>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Товары в заказе</h6>
+                <Table striped size="sm">
+                  <thead>
+                    <tr>
+                      <th>Товар</th>
+                      <th>Размер</th>
+                      <th>Кол-во</th>
+                      <th>Цена</th>
+                      <th>Сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrder.items.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.productName}</td>
+                        <td><Badge bg="secondary">{item.size}</Badge></td>
+                        <td>{item.quantity}</td>
+                        <td>{item.price} Br</td>
+                        <td><strong>{item.price * item.quantity} Br</strong></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colSpan={4} className="text-end"><strong>Итого:</strong></td>
+                      <td><strong className="text-primary">{selectedOrder.total} Br</strong></td>
+                    </tr>
+                  </tfoot>
+                </Table>
+              </div>
+
+              <div className="mb-3">
+                <h6 className="text-muted mb-2">Статус заказа</h6>
+                <Badge bg={
+                  selectedOrder.status === 'new' ? 'warning' :
+                  selectedOrder.status === 'processing' ? 'info' :
+                  selectedOrder.status === 'shipped' ? 'primary' : 'success'
+                } style={{ fontSize: '14px', padding: '8px 16px' }}>
+                  {selectedOrder.status === 'new' && '🆕 Новый'}
+                  {selectedOrder.status === 'processing' && '⚙️ В работе'}
+                  {selectedOrder.status === 'shipped' && '📦 Отправлен'}
+                  {selectedOrder.status === 'delivered' && '✅ Доставлен'}
+                </Badge>
+              </div>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowOrderModal(false)}>
+            Закрыть
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Role Change Modal */}
+      <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Изменить роль пользователя</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <>
+              <p className="mb-3"><strong>Email:</strong> {selectedUser.email}</p>
+              <Form.Group>
+                <Form.Label>Роль</Form.Label>
+                <Form.Select
+                  defaultValue={selectedUser.role}
+                  onChange={(e) => {
+                    fetch(`${API_URL}/users/${selectedUser.id}/role`, {
+                      method: 'PATCH',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({ role: e.target.value }),
+                    }).then(() => {
+                      fetchUsers();
+                      setShowRoleModal(false);
+                    });
+                  }}
+                >
+                  <option value="user">👤 Пользователь</option>
+                  <option value="admin">👑 Администратор</option>
+                </Form.Select>
+              </Form.Group>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRoleModal(false)}>
+            Закрыть
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

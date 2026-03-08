@@ -9,13 +9,17 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  Param,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password-reset.dto';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -111,5 +115,47 @@ export class UsersController {
   ): Promise<{ valid: boolean }> {
     const isValid = await this.usersService.validateResetToken(token);
     return { valid: isValid };
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @ApiOperation({ summary: 'Получить список всех пользователей (admin)' })
+  @ApiResponse({ status: 200, description: 'Список пользователей' })
+  async findAll(): Promise<User[]> {
+    return await this.usersService.findAll();
+  }
+
+  @Patch(':id/role')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @ApiParam({ name: 'id', description: 'UUID пользователя' })
+  @ApiOperation({ summary: 'Изменить роль пользователя (admin)' })
+  @ApiResponse({ status: 200, description: 'Роль изменена' })
+  async updateRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('role') role: UserRole,
+  ): Promise<User> {
+    return await this.usersService.updateRole(id, role);
+  }
+
+  @Post(':id/ban')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @ApiParam({ name: 'id', description: 'UUID пользователя' })
+  @ApiOperation({ summary: 'Заблокировать пользователя (admin)' })
+  @ApiResponse({ status: 200, description: 'Пользователь заблокирован' })
+  async ban(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    await this.usersService.ban(id);
+  }
+
+  @Post(':id/unban')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @ApiParam({ name: 'id', description: 'UUID пользователя' })
+  @ApiOperation({ summary: 'Разблокировать пользователя (admin)' })
+  @ApiResponse({ status: 200, description: 'Пользователь разблокирован' })
+  async unban(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    await this.usersService.unban(id);
   }
 }

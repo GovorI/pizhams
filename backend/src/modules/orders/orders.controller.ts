@@ -10,7 +10,10 @@ import {
   HttpStatus,
   UseGuards,
   Request,
+  Res,
+  Header,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -54,6 +57,40 @@ export class OrdersController {
   @ApiResponse({ status: 403, description: 'Доступ запрещен' })
   findAll(): Promise<Order[]> {
     return this.ordersService.findAll();
+  }
+
+  @Get('export/csv')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="orders.csv"')
+  @ApiOperation({ summary: 'Экспорт заказов в CSV (admin)' })
+  @ApiResponse({ status: 200, description: 'CSV файл с заказами' })
+  async exportToCsv(@Res() res: Response): Promise<any> {
+    const orders = await this.ordersService.findAll();
+    
+    // CSV Header
+    const csvHeader = 'ID,Клиент,Email,Телефон,Адрес,Сумма,Статус,Дата\n';
+    
+    // CSV Rows
+    const csvRows = orders.map(order => {
+      const escapeCsv = (str: string) => `"${str.replace(/"/g, '""')}"`;
+      return [
+        order.id.slice(0, 8),
+        escapeCsv(order.customerName),
+        escapeCsv(order.customerEmail),
+        escapeCsv(order.customerPhone),
+        escapeCsv(order.customerAddress),
+        order.total,
+        order.status,
+        new Date(order.createdAt).toISOString(),
+      ].join(',');
+    }).join('\n');
+    
+    const csv = csvHeader + csvRows;
+    
+    res.send(csv);
+    return res;
   }
 
   @Get(':id')

@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsArray, ValidateNested, IsNumber, Min } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsArray, ValidateNested, IsNumber, Min, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateOrderItemDto {
@@ -44,6 +44,8 @@ export class CreateOrderDto {
   @Type(() => CreateOrderItemDto)
   items: CreateOrderItemDto[];
 
-  // Optional - will be set from authenticated user if not provided
+  // Optional - will be set from authenticated user if provided
+  @IsOptional()
+  @IsString()
   userId?: string;
 }

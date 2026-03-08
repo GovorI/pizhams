@@ -2,6 +2,7 @@ import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
 import { closeCart, removeItem } from '@entities/cart/cart.slice';
 import { Button, Offcanvas, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import type { RootState } from '@app/store';
 
 export function CartSidebar() {
@@ -16,6 +17,9 @@ export function CartSidebar() {
 
   const handleRemove = (productId: string, size: string) => {
     dispatch(removeItem({ productId, size: size as any }));
+    toast.success('Товар удалён из корзины', {
+      icon: '🗑️',
+    });
   };
 
   return (
@@ -44,7 +48,7 @@ export function CartSidebar() {
                           Размер: {item.size} × {item.quantity} шт.
                         </small>
                         <div className="text-primary fw-bold">
-                          {(Number(item.product.price) * item.quantity).toFixed(0)} ₽
+                          {(Number(item.product.price) * item.quantity).toFixed(0)} Br
                         </div>
                       </div>
                       <Button
@@ -63,7 +67,7 @@ export function CartSidebar() {
             <div className="border-top pt-3 mt-3">
               <div className="d-flex justify-content-between mb-3">
                 <strong>Итого:</strong>
-                <strong className="h5">{total.toFixed(0)} ₽</strong>
+                <strong className="h5">{total.toFixed(0)} Br</strong>
               </div>
               <Button variant="primary" className="w-100 mb-2" onClick={() => { dispatch(closeCart()); navigate('/cart'); }}>
                 Перейти в корзину

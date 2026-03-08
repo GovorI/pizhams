@@ -193,7 +193,7 @@ export function CheckoutPage() {
                       Оформление...
                     </>
                   ) : (
-                    `Оплатить ${total.toFixed(0)} ₽`
+                    `Оплатить ${total.toFixed(0)} Br`
                   )}
                 </Button>
               </Form>
@@ -215,7 +215,7 @@ export function CheckoutPage() {
                       </small>
                     </div>
                     <div>
-                      {(Number(item.product.price) * item.quantity).toFixed(0)} ₽
+                      {(Number(item.product.price) * item.quantity).toFixed(0)} Br
                     </div>
                   </div>
                 ))}
@@ -223,7 +223,7 @@ export function CheckoutPage() {
               
               <div className="d-flex justify-content-between mt-3 pt-3 border-top">
                 <strong>Итого:</strong>
-                <strong className="h5 text-primary">{total.toFixed(0)} ₽</strong>
+                <strong className="h5 text-primary">{total.toFixed(0)} Br</strong>
               </div>
             </Card.Body>
           </Card>
