@@ -36,6 +36,12 @@ export class ReviewsService {
   async update(id: string, updateReviewDto: UpdateReviewDto): Promise<Review> {
     const review = await this.findOne(id);
     Object.assign(review, updateReviewDto);
+    
+    // Set admin response date if adminResponse is provided
+    if (updateReviewDto.adminResponse !== undefined) {
+      review.adminResponseDate = new Date();
+    }
+    
     return await this.reviewRepository.save(review);
   }
 

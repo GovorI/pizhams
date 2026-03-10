@@ -13,6 +13,8 @@ interface Review {
   productId: string;
   isApproved: boolean;
   createdAt: string;
+  adminResponse?: string | null;
+  adminResponseDate?: string | null;
 }
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -24,6 +26,8 @@ export function AdminReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showResponseForm, setShowResponseForm] = useState<string | null>(null);
+  const [adminResponse, setAdminResponse] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -100,6 +104,56 @@ export function AdminReviewsPage() {
     }
   };
 
+  const handleAddResponse = async (reviewId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/reviews/${reviewId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ adminResponse }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add response');
+      }
+
+      setSuccess('Ответ добавлен');
+      setShowResponseForm(null);
+      setAdminResponse('');
+      fetchReviews();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to add response');
+    }
+  };
+
+  const handleRemoveResponse = async (reviewId: string) => {
+    if (!confirm('Вы уверены, что хотите удалить ответ?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/reviews/${reviewId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ adminResponse: null }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove response');
+      }
+
+      setSuccess('Ответ удалён');
+      fetchReviews();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to remove response');
+    }
+  };
+
   const renderStars = (rating: number) => {
     return (
       <div style={{ display: 'flex', gap: '2px' }}>
@@ -158,6 +212,7 @@ export function AdminReviewsPage() {
                   <th>Товар</th>
                   <th>Пользователь</th>
                   <th>Комментарий</th>
+                  <th>Ответ админа</th>
                   <th>Дата</th>
                   <th>Действия</th>
                 </tr>
@@ -170,26 +225,96 @@ export function AdminReviewsPage() {
                       <Badge bg="info">{review.productId.slice(0, 8)}...</Badge>
                     </td>
                     <td>{review.userName || 'Аноним'}</td>
-                    <td style={{ maxWidth: '300px' }}>
+                    <td style={{ maxWidth: '250px' }}>
                       {review.comment || <em className="text-muted">Без комментария</em>}
+                    </td>
+                    <td style={{ maxWidth: '250px' }}>
+                      {review.adminResponse ? (
+                        <div>
+                          <small className="text-muted">
+                            {review.adminResponseDate
+                              ? new Date(review.adminResponseDate).toLocaleDateString('ru-RU')
+                              : ''}
+                          </small>
+                          <p className="mb-0 text-truncate" title={review.adminResponse}>
+                            {review.adminResponse}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
                     </td>
                     <td>{new Date(review.createdAt).toLocaleDateString('ru-RU')}</td>
                     <td>
-                      <Button
-                        variant="success"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleApprove(review.id)}
-                      >
-                        ✅ Одобрить
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleReject(review.id)}
-                      >
-                        🗑️ Удалить
-                      </Button>
+                      <div className="d-flex gap-1 flex-wrap">
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => handleApprove(review.id)}
+                        >
+                          ✅
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleReject(review.id)}
+                        >
+                          🗑️
+                        </Button>
+                        {review.adminResponse ? (
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={() => handleRemoveResponse(review.id)}
+                            title="Удалить ответ"
+                          >
+                            ✏️
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={() => setShowResponseForm(review.id)}
+                            title="Ответить"
+                          >
+                            💬
+                          </Button>
+                        )}
+                      </div>
+                      {showResponseForm === review.id && (
+                        <div className="mt-2">
+                          <Form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleAddResponse(review.id);
+                            }}
+                          >
+                            <Form.Control
+                              as="textarea"
+                              rows={2}
+                              value={adminResponse}
+                              onChange={(e) => setAdminResponse(e.target.value)}
+                              placeholder="Введите ответ..."
+                              className="mb-2"
+                            />
+                            <div className="d-flex gap-1">
+                              <Button type="submit" variant="primary" size="sm">
+                                Отправить
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => {
+                                  setShowResponseForm(null);
+                                  setAdminResponse('');
+                                }}
+                              >
+                                Отмена
+                              </Button>
+                            </div>
+                          </Form>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}

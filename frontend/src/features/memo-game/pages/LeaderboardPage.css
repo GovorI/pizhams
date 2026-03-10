@@ -1,0 +1,125 @@
+.leaderboard-page {
+  min-height: 100vh;
+  padding: 20px;
+  background: #f5f7fa;
+}
+
+.leaderboard-header {
+  max-width: 1000px;
+  margin: 0 auto 32px;
+  text-align: center;
+}
+
+.leaderboard-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin: 0 0 24px;
+}
+
+.leaderboard-filters {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: #555;
+}
+
+.filter-group select {
+  padding: 8px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+}
+
+.leaderboard-table-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.leaderboard-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.leaderboard-table tbody tr {
+  transition: background-color 0.3s;
+}
+
+.leaderboard-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.leaderboard-table tbody tr.top-1 {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent);
+}
+
+.leaderboard-table tbody tr.top-2 {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.2), transparent);
+}
+
+.leaderboard-table tbody tr.top-3 {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), transparent);
+}
+
+.rank {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.player {
+  font-weight: 500;
+  color: #333;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 40px !important;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .leaderboard-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .leaderboard-filters {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+}

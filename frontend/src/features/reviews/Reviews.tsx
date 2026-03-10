@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Button, Form, Badge, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import { Star } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -11,6 +12,8 @@ interface Review {
   userName: string;
   createdAt: string;
   isApproved: boolean;
+  adminResponse?: string | null;
+  adminResponseDate?: string | null;
 }
 
 interface ReviewsProps {
@@ -26,7 +29,6 @@ export function Reviews({ productId }: ReviewsProps) {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     fetchReviews();
@@ -65,7 +67,7 @@ export function Reviews({ productId }: ReviewsProps) {
 
     try {
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
         throw new Error('Необходимо авторизоваться для создания отзыва');
       }
@@ -91,7 +93,15 @@ export function Reviews({ productId }: ReviewsProps) {
         throw new Error(responseData.message || 'Failed to submit review');
       }
 
-      setSuccess(true);
+      // Показываем toast уведомление вместо Alert в форме
+      toast.success(
+        'Спасибо за отзыв! Он появится на сайте после модерации.',
+        {
+          duration: 5000,
+          position: 'top-right',
+        }
+      );
+
       setShowForm(false);
       setRating(5);
       setComment('');
@@ -220,11 +230,6 @@ export function Reviews({ productId }: ReviewsProps) {
               </Form.Group>
 
               {error && <Alert variant="danger">{error}</Alert>}
-              {success && (
-                <Alert variant="success">
-                  Отзыв отправлен на модерацию. После одобрения он появится на сайте.
-                </Alert>
-              )}
 
               <Button
                 type="submit"
@@ -268,10 +273,29 @@ export function Reviews({ productId }: ReviewsProps) {
                     </small>
                   </div>
                   {review.comment && <p className="mb-0">{review.comment}</p>}
-                  {!review.isApproved && (
-                    <Badge bg="warning" className="mt-2">
-                      На модерации
-                    </Badge>
+                  
+                  {/* Admin Response */}
+                  {review.adminResponse && (
+                    <div
+                      className="mt-3 p-3"
+                      style={{
+                        background: 'var(--background)',
+                        borderRadius: '8px',
+                        borderLeft: '3px solid var(--primary)',
+                      }}
+                    >
+                      <div className="d-flex align-items-center gap-2 mb-2">
+                        <Badge bg="primary">Ответ администрации</Badge>
+                        {review.adminResponseDate && (
+                          <small className="text-muted">
+                            {new Date(review.adminResponseDate).toLocaleDateString('ru-RU')}
+                          </small>
+                        )}
+                      </div>
+                      <p className="mb-0" style={{ fontSize: '14px' }}>
+                        {review.adminResponse}
+                      </p>
+                    </div>
                   )}
                 </Card.Body>
               </Card>

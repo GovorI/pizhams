@@ -5,13 +5,14 @@ import { store } from './store';
 import { AppRoutes } from './AppRoutes';
 import { Header } from '@widgets/Header';
 import { CartSidebar } from '@widgets/CartSidebar';
+import { CartWidgetDesktop } from '@widgets/CartWidgetDesktop';
 import { ToastProvider } from '@shared/components/ToastProvider';
 import { fetchMe } from '@entities/user/user.slice';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function AppContent() {
   const dispatch = store.dispatch;
-  
+
   useEffect(() => {
     // Try to fetch current user if token exists
     const token = localStorage.getItem('token');
@@ -19,7 +20,7 @@ function AppContent() {
       dispatch(fetchMe());
     }
   }, []);
-  
+
   return (
     <div className="min-vh-100 d-flex flex-column">
       <Header />
@@ -27,6 +28,7 @@ function AppContent() {
         <AppRoutes />
       </main>
       <CartSidebar />
+      <CartWidgetDesktop />
     </div>
   );
 }

@@ -1,0 +1,164 @@
+.memo-game-page {
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.memo-game-header {
+  max-width: 800px;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.memo-game-header h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.memo-game-stats {
+  display: flex;
+  gap: 24px;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.memo-game-stats .my-turn {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.memo-leave-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+  padding: 8px 24px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.memo-leave-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.memo-waiting {
+  text-align: center;
+  color: white;
+  padding: 40px;
+}
+
+.memo-waiting h2 {
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+
+.memo-players {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.memo-player {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+}
+
+.memo-start-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 16px 48px;
+  border-radius: 32px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.memo-start-btn:hover {
+  transform: scale(1.05);
+}
+
+.memo-finished {
+  text-align: center;
+  color: white;
+  padding: 40px;
+  margin-bottom: 20px;
+}
+
+.memo-finished h2 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.memo-finished p {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+}
+
+.memo-finished button {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 24px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.memo-loading,
+.memo-error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.memo-error h2 {
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+
+.memo-error button {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 24px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .memo-game-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .memo-game-stats {
+    font-size: 0.9rem;
+    gap: 12px;
+  }
+}

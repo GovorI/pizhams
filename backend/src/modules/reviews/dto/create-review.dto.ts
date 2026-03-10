@@ -40,4 +40,8 @@ export class UpdateReviewDto {
   @IsBoolean()
   @IsOptional()
   isApproved?: boolean;
+
+  @IsString()
+  @IsOptional()
+  adminResponse?: string;
 }

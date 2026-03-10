@@ -8,15 +8,19 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL,
     credentials: 'include',
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers, { getState, endpoint }) => {
       const token = (getState() as RootState).auth.token;
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
+      // Don't set Content-Type for file uploads - browser will set it with boundary
+      if (endpoint === 'uploadCardImage') {
+        headers.delete('Content-Type');
+      }
       return headers;
     },
   }),
-  tagTypes: ['Product', 'Order', 'User'],
+  tagTypes: ['Product', 'Order', 'User', 'MemoCardSet', 'MemoGame', 'MemoLeaderboard'],
   endpoints: (builder) => ({
     // Products endpoints
     getProducts: builder.query({

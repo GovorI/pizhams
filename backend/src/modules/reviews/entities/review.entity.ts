@@ -23,6 +23,12 @@ export class Review {
   @Column({ default: false })
   isApproved: boolean;
 
+  @Column({ name: 'admin_response', type: 'text', nullable: true })
+  adminResponse: string;
+
+  @Column({ name: 'admin_response_date', nullable: true })
+  adminResponseDate: Date;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }

@@ -12,6 +12,10 @@ import { ResetPasswordPage } from '@pages/ResetPasswordPage';
 import { OrdersPage } from '@pages/OrdersPage';
 import { UsersPage } from '@pages/UsersPage';
 import { AdminReviewsPage } from '@pages/AdminReviewsPage';
+import { MemoGamePage } from '@features/memo-game/pages/MemoGamePage';
+import { CardSetsPage } from '@features/memo-game/pages/CardSetsPage';
+import { LeaderboardPage } from '@features/memo-game/pages/LeaderboardPage';
+import { CardSetEditorPage } from '@features/memo-game/pages/CardSetEditorPage';
 
 export function AppRoutes() {
   return (
@@ -29,6 +33,12 @@ export function AppRoutes() {
       <Route path="/admin/reviews" element={<AdminReviewsPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      
+      {/* Memo Game Routes */}
+      <Route path="/memo" element={<CardSetsPage />} />
+      <Route path="/memo/:id" element={<MemoGamePage />} />
+      <Route path="/memo/sets/:id/edit" element={<CardSetEditorPage />} />
+      <Route path="/memo/leaderboard" element={<LeaderboardPage />} />
     </Routes>
   );
 }

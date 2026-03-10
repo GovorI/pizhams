@@ -35,9 +35,10 @@ export function ProductCard({ product }: ProductCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ y: -8, transition: { duration: 0.2 } }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
       onClick={handleCardClick}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', height: '100%' }}
+      className="w-100"
     >
       <Card
         className="h-100 border-0 shadow-sm"
@@ -55,7 +56,8 @@ export function ProductCard({ product }: ProductCardProps) {
               src={product.images[0]}
               alt={product.name}
               style={{
-                height: '280px',
+                height: 'clamp(200px, 40vw, 280px)',
+                width: '100%',
                 objectFit: 'cover',
                 transition: 'transform 0.5s ease',
               }}
@@ -73,13 +75,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <div
               style={{
                 position: 'absolute',
-                top: '12px',
-                right: '12px',
+                top: '8px',
+                right: '8px',
                 background: 'var(--warning)',
                 color: 'white',
-                padding: '6px 12px',
+                padding: '4px 10px',
                 borderRadius: '20px',
-                fontSize: '12px',
+                fontSize: 'clamp(10px, 2.5vw, 12px)',
                 fontWeight: 600,
               }}
             >
@@ -91,13 +93,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <div
               style={{
                 position: 'absolute',
-                top: '12px',
-                right: '12px',
+                top: '8px',
+                right: '8px',
                 background: 'var(--error)',
                 color: 'white',
-                padding: '6px 12px',
+                padding: '4px 10px',
                 borderRadius: '20px',
-                fontSize: '12px',
+                fontSize: 'clamp(10px, 2.5vw, 12px)',
                 fontWeight: 600,
               }}
             >
@@ -106,10 +108,10 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <Card.Body className="d-flex flex-column p-4">
+        <Card.Body className="d-flex flex-column p-3 p-md-4">
           <div
             style={{
-              fontSize: '12px',
+              fontSize: 'clamp(10px, 2.5vw, 12px)',
               color: 'var(--primary)',
               fontWeight: 600,
               textTransform: 'uppercase',
@@ -123,10 +125,16 @@ export function ProductCard({ product }: ProductCardProps) {
           <Card.Title
             className="mb-2"
             style={{
-              fontSize: '18px',
+              fontSize: 'clamp(14px, 3.5vw, 18px)',
               fontWeight: 600,
               color: 'var(--text-primary)',
               lineHeight: 1.3,
+              minHeight: 'clamp(40px, 10vw, 50px)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
             }}
           >
             {product.name}
@@ -136,27 +144,27 @@ export function ProductCard({ product }: ProductCardProps) {
             className="text-muted small flex-grow-1"
             style={{
               color: 'var(--text-secondary)',
-              fontSize: '14px',
+              fontSize: 'clamp(12px, 3vw, 14px)',
               lineHeight: 1.5,
             }}
           >
-            {product.description.substring(0, 100)}...
+            {product.description.substring(0, 80)}...
           </Card.Text>
 
           <div className="mt-auto">
             {/* Sizes Preview */}
             <div style={{
               display: 'flex',
-              gap: '6px',
+              gap: '4px',
               marginBottom: '12px',
               flexWrap: 'wrap',
             }}>
-              {product.sizes.slice(0, 4).map((size) => (
+              {product.sizes.slice(0, 3).map((size) => (
                 <span
                   key={size}
                   style={{
-                    fontSize: '12px',
-                    padding: '4px 10px',
+                    fontSize: 'clamp(10px, 2.5vw, 12px)',
+                    padding: '4px 8px',
                     background: 'var(--background)',
                     color: 'var(--text-secondary)',
                     borderRadius: '6px',
@@ -166,18 +174,18 @@ export function ProductCard({ product }: ProductCardProps) {
                   {size}
                 </span>
               ))}
-              {product.sizes.length > 4 && (
+              {product.sizes.length > 3 && (
                 <span
                   style={{
-                    fontSize: '12px',
-                    padding: '4px 10px',
+                    fontSize: 'clamp(10px, 2.5vw, 12px)',
+                    padding: '4px 8px',
                     background: 'var(--background)',
                     color: 'var(--text-tertiary)',
                     borderRadius: '6px',
                     fontWeight: 500,
                   }}
                 >
-                  +{product.sizes.length - 4}
+                  +{product.sizes.length - 3}
                 </span>
               )}
             </div>
@@ -186,7 +194,7 @@ export function ProductCard({ product }: ProductCardProps) {
               marginBottom: '12px',
             }}>
               <div style={{
-                fontSize: '28px',
+                fontSize: 'clamp(20px, 5vw, 28px)',
                 fontWeight: 700,
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                 WebkitBackgroundClip: 'text',
@@ -207,9 +215,11 @@ export function ProductCard({ product }: ProductCardProps) {
                 style={{
                   borderRadius: '10px',
                   fontWeight: 600,
+                  fontSize: 'clamp(12px, 3vw, 14px)',
+                  padding: 'clamp(8px, 2vw, 10px) 16px',
                 }}
               >
-                <ShoppingCart size={18} className="me-2" />
+                <ShoppingCart size={16} className="me-2" />
                 В корзину
               </Button>
             )}

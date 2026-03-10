@@ -12,6 +12,7 @@ import { FilesModule } from './modules/files/files.module';
 import { EmailModule } from './modules/email/email.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { MemoModule } from './modules/memo/memo.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
     EmailModule,
     StatisticsModule,
     ReviewsModule,
+    MemoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

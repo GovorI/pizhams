@@ -62,9 +62,9 @@ export function ProductList() {
       <ProductFilters onFilterChange={handleFilterChange} />
 
       {loading ? (
-        <div className="row g-4">
+        <div className="row g-3 g-md-4">
           {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="col-md-4 col-lg-3">
+            <div key={index} className="col-12 col-md-6 col-lg-4 col-xl-3">
               <ProductCardSkeleton />
             </div>
           ))}
@@ -75,9 +75,9 @@ export function ProductList() {
         </div>
       ) : (
         <>
-          <div className="row g-4">
+          <div className="row g-3 g-md-4">
             {filteredItems.map((product: Product) => (
-              <div key={product.id} className="col-md-4 col-lg-3">
+              <div key={product.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
                 <ProductCard product={product} />
               </div>
             ))}

@@ -1,7 +1,8 @@
 import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
 import { closeCart, removeItem } from '@entities/cart/cart.slice';
-import { Button, Offcanvas, Card } from 'react-bootstrap';
+import { Button, Offcanvas, Card, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import type { RootState } from '@app/store';
 
@@ -9,7 +10,16 @@ export function CartSidebar() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { items, isOpen } = useAppSelector((state: RootState) => state.cart);
-  
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const total = items.reduce(
     (sum, item) => sum + Number(item.product.price) * item.quantity,
     0,
@@ -22,12 +32,25 @@ export function CartSidebar() {
     });
   };
 
+  const handleCheckout = () => {
+    dispatch(closeCart());
+    navigate('/checkout');
+  };
+
+  if (!isMobile) {
+    return null;
+  }
+
   return (
-    <Offcanvas show={isOpen} onHide={() => dispatch(closeCart())} placement="end">
+    <Offcanvas 
+      show={isOpen} 
+      onHide={() => dispatch(closeCart())} 
+      placement="end"
+    >
       <Offcanvas.Header closeButton>
-        <Offcanvas.Title>Корзина</Offcanvas.Title>
+        <Offcanvas.Title>🛒 Корзина</Offcanvas.Title>
       </Offcanvas.Header>
-      <Offcanvas.Body>
+      <Offcanvas.Body className="d-flex flex-column">
         {items.length === 0 ? (
           <div className="text-center py-5">
             <p className="text-muted mb-3">Ваша корзина пуста</p>
@@ -37,7 +60,7 @@ export function CartSidebar() {
           </div>
         ) : (
           <>
-            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <div className="flex-grow-1 overflow-auto">
               {items.map((item) => (
                 <Card key={`${item.product.id}-${item.size}`} className="mb-3">
                   <Card.Body className="p-2">
@@ -72,7 +95,7 @@ export function CartSidebar() {
               <Button variant="primary" className="w-100 mb-2" onClick={() => { dispatch(closeCart()); navigate('/cart'); }}>
                 Перейти в корзину
               </Button>
-              <Button variant="success" className="w-100" onClick={() => { dispatch(closeCart()); navigate('/checkout'); }}>
+              <Button variant="success" className="w-100" onClick={handleCheckout}>
                 Оформить заказ
               </Button>
             </div>
