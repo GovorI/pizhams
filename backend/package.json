@@ -12,6 +12,8 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "docker:build": "docker build -t pizhams-backend .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env pizhams-backend",
     "seed": "ts-node -r tsconfig-paths/register src/seed.ts",
     "seed-memo": "ts-node -r tsconfig-paths/register src/seed-memo.ts",
     "seed-memo-local": "ts-node -r tsconfig-paths/register src/seed-memo-local.ts",

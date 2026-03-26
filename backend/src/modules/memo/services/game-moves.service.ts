@@ -99,13 +99,21 @@ export class GameMovesService {
       );
       game.winnerId = winner.userId;
 
+      // Calculate time spent
+      const timeSpent = game.startedAt 
+        ? Math.floor((game.finishedAt.getTime() - game.startedAt.getTime()) / 1000)
+        : 0;
+
       // Update user stats for all players
       for (const player of players) {
+        const isSinglePlayer = game.mode === GameMode.SINGLE;
         await this.updateUserStats(player.userId, {
           gamesPlayed: 1,
           gamesWon: player.userId === winner.userId ? 1 : 0,
           totalPairsFound: player.score,
           totalMoves: player.moves,
+          timeSpent: timeSpent,
+          isSinglePlayer: isSinglePlayer,
         });
       }
     }
@@ -123,16 +131,32 @@ export class GameMovesService {
 
   private async updateUserStats(
     userId: string,
-    delta: { gamesPlayed: number; gamesWon: number; totalPairsFound: number; totalMoves: number },
+    delta: { 
+      gamesPlayed: number; 
+      gamesWon: number; 
+      totalPairsFound: number; 
+      totalMoves: number;
+      timeSpent?: number;
+      isSinglePlayer?: boolean;
+    },
   ) {
     const stats = await this.memoRepository.findOrCreateUserStats(userId);
 
-    await this.memoRepository.updateUserStats(userId, {
+    const updateData: any = {
       gamesPlayed: stats.gamesPlayed + delta.gamesPlayed,
       gamesWon: stats.gamesWon + delta.gamesWon,
       totalPairsFound: stats.totalPairsFound + delta.totalPairsFound,
       totalMoves: stats.totalMoves + delta.totalMoves,
-    });
+    };
+
+    // Update best time for single player games
+    if (delta.isSinglePlayer && delta.timeSpent && delta.timeSpent > 0) {
+      if (!stats.bestTimeSingle || delta.timeSpent < stats.bestTimeSingle) {
+        updateData.bestTimeSingle = delta.timeSpent;
+      }
+    }
+
+    await this.memoRepository.updateUserStats(userId, updateData);
   }
 
   async getGameMoves(gameId: string) {

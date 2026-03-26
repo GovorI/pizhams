@@ -219,12 +219,11 @@ export class MemoRepository {
   async getLeaderboard(period: string = 'all', limit = 100): Promise<UserStats[]> {
     const query = this.userStatsRepository
       .createQueryBuilder('stats')
-      .leftJoinAndSelect('stats.user', 'user')
       .orderBy('stats.gamesWon', 'DESC')
       .addOrderBy('stats.bestTimeSingle', 'ASC', 'NULLS LAST')
       .limit(limit);
 
-    // Для периодов можно добавить фильтрацию по createdAt
+    // Для периодов можно добавить фильтрацию по updatedAt
     if (period !== 'all') {
       const dateFilter = this.getDateFilter(period);
       query.andWhere('stats.updatedAt >= :date', { date: dateFilter });

@@ -29,6 +29,7 @@ export function Reviews({ productId }: ReviewsProps) {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     fetchReviews();

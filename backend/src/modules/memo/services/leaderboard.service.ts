@@ -28,6 +28,7 @@ export class LeaderboardService {
         bestTime: stat.bestTimeSingle,
         gamesWon: stat.gamesWon,
         gamesPlayed: stat.gamesPlayed,
+        totalMoves: stat.totalMoves,
       }));
   }
 

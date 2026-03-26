@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.env
+.env.local
+.DS_Store
+*.md
+.gitignore
+.dockerignore
+coverage
+.nyc_output
+tmp
+temp
+uploads/*
+!uploads/.gitkeep

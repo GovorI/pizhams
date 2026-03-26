@@ -98,6 +98,7 @@ export interface LeaderboardEntry {
   bestTime?: number;
   winRate?: string;
   totalPairsFound?: number;
+  totalMoves?: number;
 }
 
 export interface MoveResult {

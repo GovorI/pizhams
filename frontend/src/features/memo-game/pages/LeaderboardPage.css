@@ -1,26 +1,50 @@
 .leaderboard-page {
   min-height: 100vh;
   padding: 20px;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .leaderboard-header {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto 32px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.back-btn {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  border: 2px solid white;
+  padding: 10px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .leaderboard-header h1 {
+  color: white;
   font-size: 2.5rem;
-  color: #333;
-  margin: 0 0 24px;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .leaderboard-filters {
   display: flex;
-  justify-content: center;
   gap: 24px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .filter-group {
@@ -30,26 +54,48 @@
 }
 
 .filter-group label {
+  color: white;
   font-weight: 500;
-  color: #555;
+  font-size: 1rem;
 }
 
 .filter-group select {
-  padding: 8px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 12px;
   font-size: 1rem;
   background: white;
   cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.filter-group select:hover {
+  transform: scale(1.05);
 }
 
 .leaderboard-table-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  min-height: 400px;
+}
+
+.loading,
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #666;
+  font-size: 1.2rem;
+}
+
+.no-data p {
+  margin: 8px 0;
 }
 
 .leaderboard-table {
@@ -57,42 +103,55 @@
   border-collapse: collapse;
 }
 
-.leaderboard-table th {
+.leaderboard-table thead {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 16px;
+}
+
+.leaderboard-table th {
+  padding: 18px 16px;
   text-align: left;
   font-weight: 600;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .leaderboard-table td {
   padding: 16px;
   border-bottom: 1px solid #f0f0f0;
+  font-size: 1rem;
 }
 
 .leaderboard-table tbody tr {
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .leaderboard-table tbody tr:hover {
   background: #f8f9fa;
-}
-
-.leaderboard-table tbody tr.top-1 {
-  background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent);
-}
-
-.leaderboard-table tbody tr.top-2 {
-  background: linear-gradient(90deg, rgba(192, 192, 192, 0.2), transparent);
+  transform: translateX(4px);
 }
 
 .leaderboard-table tbody tr.top-3 {
-  background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), transparent);
+  font-weight: 600;
+}
+
+.leaderboard-table tbody tr.rank-0 {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), transparent);
+}
+
+.leaderboard-table tbody tr.rank-1 {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.15), transparent);
+}
+
+.leaderboard-table tbody tr.rank-2 {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.15), transparent);
 }
 
 .rank {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: bold;
+  width: 60px;
 }
 
 .player {
@@ -100,14 +159,8 @@
   color: #333;
 }
 
-.no-data {
-  text-align: center;
-  color: #999;
-  padding: 40px !important;
-}
-
 /* Responsive */
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .leaderboard-header h1 {
     font-size: 1.8rem;
   }
@@ -117,9 +170,35 @@
     gap: 12px;
   }
 
+  .filter-group {
+    width: 100%;
+    justify-content: center;
+  }
+
   .leaderboard-table th,
   .leaderboard-table td {
     padding: 12px 8px;
     font-size: 0.9rem;
+  }
+
+  .rank {
+    width: 40px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .leaderboard-page {
+    padding: 12px;
+  }
+
+  .leaderboard-table-container {
+    border-radius: 12px;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 10px 6px;
+    font-size: 0.85rem;
   }
 }

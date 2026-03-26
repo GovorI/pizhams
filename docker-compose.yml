@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: pizhams-db
@@ -18,18 +19,76 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - pizhams-network
 
+  # pgAdmin for database management
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pizhams-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@pizhams.local
+      PGADMIN_DEFAULT_EMAIL: admin@pizhams.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - '5050:80'
     depends_on:
       - postgres
+    networks:
+      - pizhams-network
+
+  # Backend API (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pizhams-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: pizhams
+      DB_PASSWORD: pizhams_password
+      DB_NAME: pizhams
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      FRONTEND_URL: http://localhost
+      APP_URL: http://localhost
+    ports:
+      - '3000:3000'
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - pizhams-network
+
+  # Frontend (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pizhams-frontend
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    networks:
+      - pizhams-network
 
 volumes:
   postgres_data:
+  backend_uploads:
+
+networks:
+  pizhams-network:
+    driver: bridge

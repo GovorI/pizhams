@@ -41,7 +41,8 @@ export const CardSetEditorPage: React.FC = () => {
     if (!files || files.length === 0) return;
 
     // Limit files to remaining slots
-    const filesToUpload = files.length > remainingPhotos ? files.slice(0, remainingPhotos) : files;
+    const filesArray = Array.from(files);
+    const filesToUpload = filesArray.length > remainingPhotos ? filesArray.slice(0, remainingPhotos) : filesArray;
     
     if (currentPhotos >= requiredPhotos) {
       toast.error(`Достаточно фото! Нужно ${requiredPhotos} фото для поля ${game?.gridRows}x${game?.gridCols}`);

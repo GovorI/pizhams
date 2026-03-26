@@ -60,9 +60,14 @@ export const CardSetsPage: React.FC = () => {
     <div className="card-sets-page">
       <div className="card-sets-header">
         <h1>Мемо - Наборы карточек</h1>
-        <button className="create-set-btn" onClick={() => setShowCreateModal(true)}>
-          + Создать новый набор
-        </button>
+        <div className="header-actions">
+          <button className="leaderboard-btn" onClick={() => navigate('/memo/leaderboard')}>
+            🏆 Лидерборд
+          </button>
+          <button className="create-set-btn" onClick={() => setShowCreateModal(true)}>
+            + Создать новый набор
+          </button>
+        </div>
       </div>
 
       {token && (

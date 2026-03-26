@@ -60,9 +60,11 @@ export function Header() {
                 </>
               ) : (
                 <>
+                  {/* @ts-ignore */}
                   <Button variant="outline-primary" size="sm" as={Link} to="/login" className="me-2">
                     Войти
                   </Button>
+                  {/* @ts-ignore */}
                   <Button variant="primary" size="sm" as={Link} to="/register">
                     Регистрация
                   </Button>

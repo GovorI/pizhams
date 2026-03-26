@@ -1,0 +1,79 @@
+# Production Docker Compose
+# Use this for self-hosted deployment (VPS, etc.)
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: pizhams-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-pizhams}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_this_password}
+      POSTGRES_DB: pizhams
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pizhams-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-pizhams}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pizhams-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: ${DB_USER:-pizhams}
+      DATABASE_PASSWORD: ${DB_PASSWORD:-change_this_password}
+      DATABASE_NAME: pizhams
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_key}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      APP_URL: ${APP_URL:-http://localhost}
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pizhams-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Frontend (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pizhams-frontend
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - backend
+    networks:
+      - pizhams-network
+
+volumes:
+  postgres_data:
+  backend_uploads:
+
+networks:
+  pizhams-network:
+    driver: bridge

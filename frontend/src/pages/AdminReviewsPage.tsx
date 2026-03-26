@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@shared/hooks/redux';
-import { Card, Container, Table, Badge, Spinner, Alert, Button, Row, Col } from 'react-bootstrap';
+import { Card, Container, Table, Badge, Spinner, Alert, Button, Row, Col, Form } from 'react-bootstrap';
 import type { RootState } from '@app/store';
 
 interface Review {
@@ -284,7 +284,7 @@ export function AdminReviewsPage() {
                       {showResponseForm === review.id && (
                         <div className="mt-2">
                           <Form
-                            onSubmit={(e) => {
+                            onSubmit={(e: React.FormEvent) => {
                               e.preventDefault();
                               handleAddResponse(review.id);
                             }}
@@ -293,7 +293,7 @@ export function AdminReviewsPage() {
                               as="textarea"
                               rows={2}
                               value={adminResponse}
-                              onChange={(e) => setAdminResponse(e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAdminResponse(e.target.value)}
                               placeholder="Введите ответ..."
                               className="mb-2"
                             />

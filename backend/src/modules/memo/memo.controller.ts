@@ -15,6 +15,8 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   BadRequestException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -279,6 +281,7 @@ export class MemoController {
   @Get('leaderboard/single')
   @ApiOperation({ summary: 'Get single player leaderboard' })
   @ApiResponse({ status: 200, description: 'Leaderboard' })
+  @UsePipes(new ValidationPipe({ transform: true }))
   getSingleLeaderboard(@Query() query: GetLeaderboardDto) {
     return this.leaderboardService.getSinglePlayerLeaderboard(query.period, query.limit);
   }
@@ -286,6 +289,7 @@ export class MemoController {
   @Get('leaderboard/multiplayer')
   @ApiOperation({ summary: 'Get multiplayer leaderboard' })
   @ApiResponse({ status: 200, description: 'Leaderboard' })
+  @UsePipes(new ValidationPipe({ transform: true }))
   getMultiLeaderboard(@Query() query: GetLeaderboardDto) {
     return this.leaderboardService.getMultiplayerLeaderboard(query.period, query.limit);
   }
