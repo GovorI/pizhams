@@ -96,7 +96,10 @@ describe('ProductsService', () => {
       const products = [mockProduct];
 
       const mockQB = createMockQueryBuilder();
-      mockQB.getManyAndCount.mockResolvedValue([products, 1] as [Product[], number]);
+      mockQB.getManyAndCount.mockResolvedValue([products, 1] as [
+        Product[],
+        number,
+      ]);
       mockRepository.createQueryBuilder.mockReturnValue(mockQB);
 
       const result = await service.findAll(filterDto);
@@ -108,17 +111,27 @@ describe('ProductsService', () => {
     });
 
     it('should filter by category', async () => {
-      const filterDto: GetProductsFilterDto = { category: 'classic', page: 1, limit: 10 };
+      const filterDto: GetProductsFilterDto = {
+        category: 'classic',
+        page: 1,
+        limit: 10,
+      };
 
       const mockQB = createMockQueryBuilder();
-      mockQB.getManyAndCount.mockResolvedValue([[mockProduct], 1] as [Product[], number]);
+      mockQB.getManyAndCount.mockResolvedValue([[mockProduct], 1] as [
+        Product[],
+        number,
+      ]);
       mockRepository.createQueryBuilder.mockReturnValue(mockQB);
 
       await service.findAll(filterDto);
 
-      expect(mockQB.where).toHaveBeenCalledWith('product.category = :category', {
-        category: 'classic',
-      });
+      expect(mockQB.where).toHaveBeenCalledWith(
+        'product.category = :category',
+        {
+          category: 'classic',
+        },
+      );
     });
   });
 
@@ -128,15 +141,21 @@ describe('ProductsService', () => {
 
       const result = await service.findOne('test-uuid-123');
 
-      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 'test-uuid-123' } });
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: 'test-uuid-123' },
+      });
       expect(result).toEqual(mockProduct);
     });
 
     it('should throw NotFoundException when product not found', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('non-existent-id')).rejects.toThrow(NotFoundException);
-      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 'non-existent-id' } });
+      await expect(service.findOne('non-existent-id')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: 'non-existent-id' },
+      });
     });
   });
 
@@ -149,17 +168,22 @@ describe('ProductsService', () => {
 
       const result = await service.update('test-uuid-123', updateDto);
 
-      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 'test-uuid-123' } });
-      expect(repository.save).toHaveBeenCalledWith({ ...mockProduct, ...updateDto });
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: 'test-uuid-123' },
+      });
+      expect(repository.save).toHaveBeenCalledWith({
+        ...mockProduct,
+        ...updateDto,
+      });
       expect(result.name).toBe('Updated Name');
     });
 
     it('should throw NotFoundException when updating non-existent product', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.update('non-existent-id', { name: 'Test' })).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.update('non-existent-id', { name: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -176,7 +200,9 @@ describe('ProductsService', () => {
     it('should throw NotFoundException when removing non-existent product', async () => {
       mockRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.remove('non-existent-id')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('non-existent-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

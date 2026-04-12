@@ -24,7 +24,7 @@ async function bootstrap() {
   const animalsResult = await client.query(
     `INSERT INTO card_sets (name, description, "isPublic", "createdAt", "updatedAt") 
      VALUES ($1, $2, $3, NOW(), NOW()) RETURNING id`,
-    ['🐶 Animals', 'Cute animals for kids', true]
+    ['🐶 Animals', 'Cute animals for kids', true],
   );
   const animalsSetId = animalsResult.rows[0].id;
 
@@ -52,7 +52,7 @@ async function bootstrap() {
     await client.query(
       `INSERT INTO cards (card_set_id, image_url, sort_order, "createdAt") 
        VALUES ($1, $2, $3, NOW())`,
-      [animalsSetId, animalImages[i], i]
+      [animalsSetId, animalImages[i], i],
     );
   }
   console.log('✅ Created Animals set (16 cards)');
@@ -61,7 +61,7 @@ async function bootstrap() {
   const vehiclesResult = await client.query(
     `INSERT INTO card_sets (name, description, "isPublic", "createdAt", "updatedAt") 
      VALUES ($1, $2, $3, NOW(), NOW()) RETURNING id`,
-    ['🚗 Vehicles', 'Cars, planes, and more', true]
+    ['🚗 Vehicles', 'Cars, planes, and more', true],
   );
   const vehiclesSetId = vehiclesResult.rows[0].id;
 
@@ -80,7 +80,7 @@ async function bootstrap() {
     await client.query(
       `INSERT INTO cards (card_set_id, image_url, sort_order, "createdAt") 
        VALUES ($1, $2, $3, NOW())`,
-      [vehiclesSetId, vehicleImages[i], i]
+      [vehiclesSetId, vehicleImages[i], i],
     );
   }
   console.log('✅ Created Vehicles set (8 cards)');
@@ -89,7 +89,7 @@ async function bootstrap() {
   const fruitsResult = await client.query(
     `INSERT INTO card_sets (name, description, "isPublic", "createdAt", "updatedAt") 
      VALUES ($1, $2, $3, NOW(), NOW()) RETURNING id`,
-    ['🍎 Fruits', 'Delicious fruits', true]
+    ['🍎 Fruits', 'Delicious fruits', true],
   );
   const fruitsSetId = fruitsResult.rows[0].id;
 
@@ -106,7 +106,7 @@ async function bootstrap() {
     await client.query(
       `INSERT INTO cards (card_set_id, image_url, sort_order, "createdAt") 
        VALUES ($1, $2, $3, NOW())`,
-      [fruitsSetId, fruitImages[i % 6], i]
+      [fruitsSetId, fruitImages[i % 6], i],
     );
   }
   console.log('✅ Created Fruits set (12 cards)');

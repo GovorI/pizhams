@@ -6,7 +6,7 @@ import { DataSource } from 'typeorm';
 
 /**
  * Users E2E Tests
- * 
+ *
  * Note: Tests accept 404 status due to ts-jest route registration issues.
  */
 describe('Users (e2e)', () => {
@@ -41,11 +41,11 @@ describe('Users (e2e)', () => {
     await request(app.getHttpServer())
       .post('/api/auth/register')
       .send({ email: 'user@example.com', password: 'password123' });
-    
+
     const loginResponse = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'user@example.com', password: 'password123' });
-    
+
     authToken = loginResponse.body.access_token;
   });
 

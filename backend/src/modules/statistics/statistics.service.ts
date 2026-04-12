@@ -133,13 +133,20 @@ export class StatisticsService {
       .getMany();
 
     // Top products (by order items) - simplified version
-    const topProducts: Array<{ name: string; soldCount: number; revenue: number }> = [];
-    
+    const topProducts: Array<{
+      name: string;
+      soldCount: number;
+      revenue: number;
+    }> = [];
+
     // Simple implementation without complex JSONB query
     const allOrders = await this.orderRepository.find();
-    const productStats = new Map<string, { name: string; soldCount: number; revenue: number }>();
-    
-    allOrders.forEach(order => {
+    const productStats = new Map<
+      string,
+      { name: string; soldCount: number; revenue: number }
+    >();
+
+    allOrders.forEach((order) => {
       order.items.forEach((item: any) => {
         const name = item.productName;
         if (!productStats.has(name)) {
@@ -147,13 +154,16 @@ export class StatisticsService {
         }
         const stat = productStats.get(name)!;
         stat.soldCount += parseInt(item.quantity) || 0;
-        stat.revenue += (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0);
+        stat.revenue +=
+          (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0);
       });
     });
-    
-    topProducts.push(...Array.from(productStats.values())
-      .sort((a, b) => b.soldCount - a.soldCount)
-      .slice(0, 5));
+
+    topProducts.push(
+      ...Array.from(productStats.values())
+        .sort((a, b) => b.soldCount - a.soldCount)
+        .slice(0, 5),
+    );
 
     return {
       orders,

@@ -29,9 +29,6 @@ RUN npm ci --only=production && npm cache clean --force
 # Copy built application
 COPY --from=builder /app/dist ./dist
 
-# Create uploads directory
-RUN mkdir -p /app/uploads
-
 # Expose port
 EXPOSE 3000
 

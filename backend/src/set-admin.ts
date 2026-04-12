@@ -10,9 +10,13 @@ async function bootstrap() {
     const user = await usersService.findByEmail('admin@pizhams.local');
     if (user) {
       const { id } = user;
-      await app.get(require('typeorm').DataSource).transaction(async (manager) => {
-        await manager.query(`UPDATE users SET role = 'admin' WHERE id = $1`, [id]);
-      });
+      await app
+        .get(require('typeorm').DataSource)
+        .transaction(async (manager) => {
+          await manager.query(`UPDATE users SET role = 'admin' WHERE id = $1`, [
+            id,
+          ]);
+        });
       console.log(`User ${user.email} is now admin!`);
     } else {
       console.log('User not found');

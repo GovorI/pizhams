@@ -70,7 +70,9 @@ export class Game {
   @Column({ name: 'finished_at', type: 'timestamp', nullable: true })
   finishedAt: Date;
 
-  @OneToMany(() => GamePlayer, (gamePlayer) => gamePlayer.game, { cascade: true })
+  @OneToMany(() => GamePlayer, (gamePlayer) => gamePlayer.game, {
+    cascade: true,
+  })
   players: GamePlayer[];
 
   @OneToMany(() => GameMove, (gameMove) => gameMove.game)

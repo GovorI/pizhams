@@ -31,14 +31,18 @@ export class MemoRepository {
     return this.cardSetRepository.save(cardSet);
   }
 
-  async findCardSetById(id: string, includeCards = false): Promise<CardSet | null> {
+  async findCardSetById(
+    id: string,
+    includeCards = false,
+  ): Promise<CardSet | null> {
     const query = this.cardSetRepository
       .createQueryBuilder('cardSet')
       .leftJoinAndSelect('cardSet.owner', 'owner')
       .where('cardSet.id = :id', { id });
 
     if (includeCards) {
-      query.leftJoinAndSelect('cardSet.cards', 'cards')
+      query
+        .leftJoinAndSelect('cardSet.cards', 'cards')
         .orderBy('cards.sortOrder', 'ASC');
     }
 
@@ -68,7 +72,10 @@ export class MemoRepository {
       .getMany();
   }
 
-  async updateCardSet(id: string, data: Partial<CardSet>): Promise<CardSet | null> {
+  async updateCardSet(
+    id: string,
+    data: Partial<CardSet>,
+  ): Promise<CardSet | null> {
     await this.cardSetRepository.update(id, data);
     return this.findCardSetById(id);
   }
@@ -131,12 +138,16 @@ export class MemoRepository {
       startedAt: data.startedAt,
       finishedAt: data.finishedAt,
     };
-    
+
     await this.gameRepository.update(id, updateData);
     return this.findGameById(id);
   }
 
-  async findUserGames(userId: string, status?: string, limit = 20): Promise<Game[]> {
+  async findUserGames(
+    userId: string,
+    status?: string,
+    limit = 20,
+  ): Promise<Game[]> {
     const query = this.gameRepository
       .createQueryBuilder('game')
       .leftJoinAndSelect('game.cardSet', 'cardSet')
@@ -161,14 +172,20 @@ export class MemoRepository {
     return this.gamePlayerRepository.save(player);
   }
 
-  async findGamePlayer(gameId: string, userId: string): Promise<GamePlayer | null> {
+  async findGamePlayer(
+    gameId: string,
+    userId: string,
+  ): Promise<GamePlayer | null> {
     return this.gamePlayerRepository.findOne({
       where: { gameId, userId },
       relations: ['user'],
     });
   }
 
-  async updateGamePlayer(id: string, data: Partial<GamePlayer>): Promise<GamePlayer | null> {
+  async updateGamePlayer(
+    id: string,
+    data: Partial<GamePlayer>,
+  ): Promise<GamePlayer | null> {
     await this.gamePlayerRepository.update(id, data);
     return this.gamePlayerRepository.findOne({ where: { id } });
   }
@@ -207,7 +224,10 @@ export class MemoRepository {
     return stats;
   }
 
-  async updateUserStats(userId: string, data: Partial<UserStats>): Promise<UserStats | null> {
+  async updateUserStats(
+    userId: string,
+    data: Partial<UserStats>,
+  ): Promise<UserStats | null> {
     await this.userStatsRepository.upsert({ userId, ...data }, ['userId']);
     return this.userStatsRepository.findOne({ where: { userId } });
   }
@@ -216,7 +236,10 @@ export class MemoRepository {
     return this.userStatsRepository.findOne({ where: { userId } });
   }
 
-  async getLeaderboard(period: string = 'all', limit = 100): Promise<UserStats[]> {
+  async getLeaderboard(
+    period: string = 'all',
+    limit = 100,
+  ): Promise<UserStats[]> {
     const query = this.userStatsRepository
       .createQueryBuilder('stats')
       .orderBy('stats.gamesWon', 'DESC')

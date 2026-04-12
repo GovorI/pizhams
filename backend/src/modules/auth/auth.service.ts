@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
@@ -10,14 +14,20 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<Partial<User> | null> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<Partial<User> | null> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
       return null;
     }
 
-    const isPasswordValid = await this.usersService.validatePassword(user, password);
+    const isPasswordValid = await this.usersService.validatePassword(
+      user,
+      password,
+    );
 
     if (!isPasswordValid) {
       return null;

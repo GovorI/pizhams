@@ -55,7 +55,9 @@ export class MemoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket) {
     try {
       // Validate JWT token from handshake
-      const token = client.handshake.auth.token || client.handshake.headers.authorization?.split(' ')[1];
+      const token =
+        client.handshake.auth.token ||
+        client.handshake.headers.authorization?.split(' ')[1];
       if (!token) {
         client.disconnect();
         return;
@@ -147,13 +149,17 @@ export class MemoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       // Get game and find player
       const game = await this.gamesService.findOne(gameId);
-      const gamePlayer = game.players.find(p => p.userId === userId);
-      
+      const gamePlayer = game.players.find((p) => p.userId === userId);
+
       if (!gamePlayer) {
         throw new Error('Player not found in game');
       }
 
-      const result = await this.gameMovesService.makeMove(gameId, gamePlayer.id, { card1Id, card2Id });
+      const result = await this.gameMovesService.makeMove(
+        gameId,
+        gamePlayer.id,
+        { card1Id, card2Id },
+      );
 
       // Broadcast move result to all players in the game
       this.server.to(`game:${gameId}`).emit('game:move-result', {

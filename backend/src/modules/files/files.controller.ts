@@ -7,7 +7,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { FilesService } from './files.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -32,10 +37,12 @@ export class FilesController {
       throw new BadRequestException('No file uploaded');
     }
 
-    const fileUrl = this.filesService.getFileUrl(file.filename);
+    // file.location и file.key добавляются multer-s3
+    const fileUrl =
+      (file as any).location || this.filesService.getFileUrl((file as any).key);
 
     return {
-      filename: file.filename,
+      filename: (file as any).key,
       originalname: file.originalname,
       url: fileUrl,
       size: file.size,
@@ -56,9 +63,11 @@ export class FilesController {
     }
 
     return files.map((file) => ({
-      filename: file.filename,
+      filename: (file as any).key,
       originalname: file.originalname,
-      url: this.filesService.getFileUrl(file.filename),
+      url:
+        (file as any).location ||
+        this.filesService.getFileUrl((file as any).key),
       size: file.size,
       mimetype: file.mimetype,
     }));

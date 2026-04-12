@@ -26,7 +26,7 @@ async function bootstrap() {
      VALUES ($1, $2, $3, $4, NOW(), NOW()) 
      ON CONFLICT (id) DO UPDATE SET name=$2, description=$3, "isPublic"=$4, "updatedAt"=NOW()
      RETURNING id`,
-    [photoSetId, '📸 Фото (Memo)', 'Карточки из ваших фото', true]
+    [photoSetId, '📸 Фото (Memo)', 'Карточки из ваших фото', true],
   );
   const setId = setResult.rows[0].id;
 
@@ -50,12 +50,14 @@ async function bootstrap() {
       await client.query(
         `INSERT INTO cards (card_set_id, image_url, sort_order, "createdAt") 
          VALUES ($1, $2, $3, NOW())`,
-        [setId, imageUrl, cardIndex++]
+        [setId, imageUrl, cardIndex++],
       );
     }
   }
 
-  console.log(`\n✅ Created card set "${setId}" with ${cardIndex} cards (${photos.length} pairs)`);
+  console.log(
+    `\n✅ Created card set "${setId}" with ${cardIndex} cards (${photos.length} pairs)`,
+  );
   console.log(`URL: ${appUrl}/uploads/memo/photos/`);
 
   await client.end();

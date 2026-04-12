@@ -12,7 +12,13 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -31,7 +37,11 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @ApiOperation({ summary: 'Создать новый товар (admin)' })
-  @ApiResponse({ status: 201, description: 'Товар успешно создан', type: Product })
+  @ApiResponse({
+    status: 201,
+    description: 'Товар успешно создан',
+    type: Product,
+  })
   @ApiResponse({ status: 400, description: 'Некорректные данные' })
   @ApiResponse({ status: 403, description: 'Доступ запрещен' })
   create(@Body() createProductDto: CreateProductDto): Promise<Product> {
@@ -39,10 +49,16 @@ export class ProductsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Получить список товаров с фильтрацией и пагинацией' })
+  @ApiOperation({
+    summary: 'Получить список товаров с фильтрацией и пагинацией',
+  })
   @ApiResponse({ status: 200, description: 'Список товаров' })
   @ApiQuery({ name: 'category', required: false, type: String })
-  @ApiQuery({ name: 'size', required: false, enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] })
+  @ApiQuery({
+    name: 'size',
+    required: false,
+    enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+  })
   @ApiQuery({ name: 'color', required: false, type: String })
   @ApiQuery({ name: 'page', required: false, type: Number, default: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, default: 10 })

@@ -1,30 +1,36 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { S3Service } from '../s3/s3.service';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import multerS3 from 'multer-s3';
 
 @Injectable()
 export class FilesService {
   private readonly logger = new Logger(FilesService.name);
-  private readonly uploadDir = 'uploads/products';
+  private readonly bucket: string;
 
-  constructor() {
-    // Create upload directory if it doesn't exist
-    if (!existsSync(this.uploadDir)) {
-      mkdirSync(this.uploadDir, { recursive: true });
-    }
+  constructor(
+    private s3Service: S3Service,
+    private configService: ConfigService,
+  ) {
+    this.bucket = this.s3Service.getBucket();
   }
 
   getMulterConfig() {
+    const s3 = this.s3Service.getClient();
+
     return {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          cb(null, this.uploadDir);
+      storage: multerS3({
+        s3,
+        bucket: this.bucket,
+        acl: 'public-read',
+        metadata: (req, file, cb) => {
+          cb(null, { fieldName: file.fieldname });
         },
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          const filename = `${uniqueSuffix}${ext}`;
+        key: (req, file, cb) => {
+          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+          const ext = file.originalname.split('.').pop();
+          const filename = `products/${uniqueSuffix}.${ext}`;
           cb(null, filename);
         },
       }),
@@ -41,24 +47,22 @@ export class FilesService {
     };
   }
 
-  getFilePath(filename: string): string {
-    return `${this.uploadDir}/${filename}`;
+  getFileUrl(key: string): string {
+    // key уже содержит полный путь включая products/
+    return this.s3Service.getPublicUrl() + '/' + key;
   }
 
-  getFileUrl(filename: string): string {
-    return `/uploads/products/${filename}`;
-  }
-
-  deleteFile(filename: string): void {
-    const filePath = this.getFilePath(filename);
+  async deleteFile(key: string): Promise<void> {
     try {
-      const fs = require('fs');
-      if (existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        this.logger.log(`File deleted: ${filePath}`);
-      }
+      const s3 = this.s3Service.getClient();
+      const command = new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      });
+      await s3.send(command);
+      this.logger.log(`File deleted from R2: ${key}`);
     } catch (error) {
-      this.logger.error(`Error deleting file: ${error.message}`);
+      this.logger.error(`Error deleting file from R2: ${error.message}`);
     }
   }
 }

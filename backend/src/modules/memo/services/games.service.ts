@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { MemoRepository } from '../memo.repository';
 import { CreateGameDto, GridSize } from '../dto/create-game.dto';
 import { GameMode, GameStatus } from '../entities/game.entity';
@@ -8,15 +13,18 @@ export class GamesService {
   constructor(private memoRepository: MemoRepository) {}
 
   private gridSizeMap: Record<GridSize, { rows: number; cols: number }> = {
-    [GridSize.SMALL]: { rows: 3, cols: 2 },    // 6 cards
-    [GridSize.MEDIUM]: { rows: 4, cols: 3 },   // 12 cards
-    [GridSize.LARGE]: { rows: 4, cols: 4 },    // 16 cards
-    [GridSize.XLARGE]: { rows: 6, cols: 4 },   // 24 cards
-    [GridSize.XXLARGE]: { rows: 8, cols: 4 },  // 32 cards
+    [GridSize.SMALL]: { rows: 3, cols: 2 }, // 6 cards
+    [GridSize.MEDIUM]: { rows: 4, cols: 3 }, // 12 cards
+    [GridSize.LARGE]: { rows: 4, cols: 4 }, // 16 cards
+    [GridSize.XLARGE]: { rows: 6, cols: 4 }, // 24 cards
+    [GridSize.XXLARGE]: { rows: 8, cols: 4 }, // 32 cards
   };
 
   async createGame(dto: CreateGameDto, userId: string) {
-    const cardSet = await this.memoRepository.findCardSetById(dto.cardSetId, true);
+    const cardSet = await this.memoRepository.findCardSetById(
+      dto.cardSetId,
+      true,
+    );
     if (!cardSet) {
       throw new NotFoundException('Card set not found');
     }
@@ -110,7 +118,10 @@ export class GamesService {
     }
 
     // Check if already joined
-    const existingPlayer = await this.memoRepository.findGamePlayer(gameId, userId);
+    const existingPlayer = await this.memoRepository.findGamePlayer(
+      gameId,
+      userId,
+    );
     if (existingPlayer) {
       return game;
     }

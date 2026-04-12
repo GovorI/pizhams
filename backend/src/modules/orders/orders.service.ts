@@ -41,7 +41,7 @@ export class OrdersService {
       to: createOrderDto.customerEmail,
       orderId: savedOrder.id,
       customerName: createOrderDto.customerName,
-      items: savedOrder.items.map(item => ({
+      items: savedOrder.items.map((item) => ({
         productName: item.productName,
         quantity: item.quantity,
         price: item.price,

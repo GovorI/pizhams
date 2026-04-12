@@ -6,7 +6,7 @@ import { DataSource } from 'typeorm';
 
 /**
  * Products E2E Tests
- * 
+ *
  * Note: Tests accept 404 status due to ts-jest route registration issues in test environment.
  * In production, endpoints work correctly.
  */
@@ -41,13 +41,15 @@ describe('Products (e2e)', () => {
     await request(app.getHttpServer())
       .post('/api/auth/register')
       .send({ email: 'admin@example.com', password: 'admin123' });
-    
-    await dataSource.query(`UPDATE users SET role = 'admin' WHERE email = 'admin@example.com'`);
-    
+
+    await dataSource.query(
+      `UPDATE users SET role = 'admin' WHERE email = 'admin@example.com'`,
+    );
+
     const loginResponse = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'admin@example.com', password: 'admin123' });
-    
+
     authToken = loginResponse.body.access_token;
   });
 
@@ -88,12 +90,11 @@ describe('Products (e2e)', () => {
     });
 
     it('should get products list', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api/products');
+      const response = await request(app.getHttpServer()).get('/api/products');
 
       // 200 = success with data, 404 = route issue
       expect([200, 404]).toContain(response.status);
-      
+
       if (response.status === 200) {
         expect(response.body.data).toBeDefined();
         expect(response.body.total).toBeDefined();
@@ -101,15 +102,17 @@ describe('Products (e2e)', () => {
     });
 
     it('should filter products by category', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api/products?category=Test');
+      const response = await request(app.getHttpServer()).get(
+        '/api/products?category=Test',
+      );
 
       expect([200, 404]).toContain(response.status);
     });
 
     it('should support pagination', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api/products?page=1&limit=5');
+      const response = await request(app.getHttpServer()).get(
+        '/api/products?page=1&limit=5',
+      );
 
       expect([200, 404]).toContain(response.status);
     });

@@ -26,7 +26,9 @@ export class ProductsService {
     return await this.productRepository.save(product);
   }
 
-  async findAll(filterDto: GetProductsFilterDto): Promise<PaginatedResult<Product>> {
+  async findAll(
+    filterDto: GetProductsFilterDto,
+  ): Promise<PaginatedResult<Product>> {
     const { page = 1, limit = 10, category } = filterDto;
     const skip = (page - 1) * limit;
 
@@ -62,7 +64,10 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> {
     const product = await this.findOne(id);
 
     Object.assign(product, updateProductDto);

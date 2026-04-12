@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { MemoRepository } from '../memo.repository';
 import { CreateCardSetDto, UpdateCardSetDto } from '../dto/create-card-set.dto';
 import { CreateCardDto, UpdateCardDto } from '../dto/create-card.dto';
@@ -71,7 +75,10 @@ export class CardSetsService {
 
     // Get max sort order
     const cards = await this.memoRepository.findCardsBySetId(cardSetId);
-    const maxSortOrder = cards.reduce((max, card) => Math.max(max, card.sortOrder), -1);
+    const maxSortOrder = cards.reduce(
+      (max, card) => Math.max(max, card.sortOrder),
+      -1,
+    );
 
     return this.memoRepository.createCard({
       cardSetId,
@@ -83,28 +90,36 @@ export class CardSetsService {
   async updateCard(cardId: string, dto: UpdateCardDto, userId: string) {
     const cards = await this.memoRepository.findCardsBySetId('');
     // Need to find card first to get cardSetId
-    const card = await this.memoRepository['cardRepository'].findOne({ where: { id: cardId } });
+    const card = await this.memoRepository['cardRepository'].findOne({
+      where: { id: cardId },
+    });
     if (!card) {
       throw new NotFoundException('Card not found');
     }
 
     const cardSet = await this.memoRepository.findCardSetById(card.cardSetId);
     if (!cardSet || cardSet.ownerId !== userId) {
-      throw new ForbiddenException('You can only update cards in your own sets');
+      throw new ForbiddenException(
+        'You can only update cards in your own sets',
+      );
     }
 
     return this.memoRepository.updateCard(cardId, dto);
   }
 
   async deleteCard(cardId: string, userId: string) {
-    const card = await this.memoRepository['cardRepository'].findOne({ where: { id: cardId } });
+    const card = await this.memoRepository['cardRepository'].findOne({
+      where: { id: cardId },
+    });
     if (!card) {
       throw new NotFoundException('Card not found');
     }
 
     const cardSet = await this.memoRepository.findCardSetById(card.cardSetId);
     if (!cardSet || cardSet.ownerId !== userId) {
-      throw new ForbiddenException('You can only delete cards from your own sets');
+      throw new ForbiddenException(
+        'You can only delete cards from your own sets',
+      );
     }
 
     await this.memoRepository.deleteCard(cardId);

@@ -13,13 +13,16 @@ import { EmailModule } from './modules/email/email.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { MemoModule } from './modules/memo/memo.module';
+import { S3Module } from './modules/s3/s3.module';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minute
-      limit: 10,  // 10 requests per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 10, // 10 requests per minute
+      },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig, authConfig],
@@ -39,6 +42,7 @@ import { MemoModule } from './modules/memo/memo.module';
         synchronize: configService.get<string>('app.nodeEnv') === 'development',
       }),
     }),
+    S3Module,
     ProductsModule,
     OrdersModule,
     AuthModule,

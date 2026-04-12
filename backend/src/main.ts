@@ -2,9 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 import helmet from 'helmet';
-import { NextFunction, Request, Response } from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -12,7 +10,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // Security: Helmet for security headers (with CSP exception for uploads)
+  // Security: Helmet for security headers
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -20,7 +18,7 @@ async function bootstrap() {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'blob:', 'http://localhost:3000', 'http://localhost:5173'],
+          imgSrc: ["'self'", 'data:', 'blob:', '*.r2.cloudflarestorage.com'],
           fontSrc: ["'self'", 'https:', 'data:'],
           objectSrc: ["'none'"],
           mediaSrc: ["'self'"],
@@ -29,20 +27,6 @@ async function bootstrap() {
       },
     }),
   );
-
-  // Serve static files from uploads directory with CORS
-  app.use('/uploads', (req: Request, res: Response, next: NextFunction) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    // Allow cross-origin resource loading
-    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.header('Access-Control-Expose-Headers', 'Content-Length,Content-Range');
-    next();
-  });
-
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-  });
 
   app.useGlobalPipes(
     new ValidationPipe({

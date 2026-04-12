@@ -19,8 +19,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CardSetsService } from './services/card-sets.service';
 import { GamesService } from './services/games.service';
@@ -28,9 +34,6 @@ import { GameMovesService } from './services/game-moves.service';
 import { LeaderboardService } from './services/leaderboard.service';
 import { MemoFilesService } from './services/files.service';
 import { ConfigService } from '@nestjs/config';
-import { existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateCardSetDto, UpdateCardSetDto } from './dto/create-card-set.dto';
 import { CreateCardDto, UpdateCardDto } from './dto/create-card.dto';
 import { CreateGameDto } from './dto/create-game.dto';
@@ -88,7 +91,11 @@ export class MemoController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update card set' })
   @ApiResponse({ status: 200, description: 'Card set updated' })
-  updateCardSet(@Param('id') id: string, @Body() dto: UpdateCardSetDto, @Req() req) {
+  updateCardSet(
+    @Param('id') id: string,
+    @Body() dto: UpdateCardSetDto,
+    @Req() req,
+  ) {
     return this.cardSetsService.update(id, dto, req.user.userId);
   }
 
@@ -108,7 +115,11 @@ export class MemoController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Add a card to a set' })
   @ApiResponse({ status: 201, description: 'Card added' })
-  createCard(@Param('setId') setId: string, @Body() dto: CreateCardDto, @Req() req) {
+  createCard(
+    @Param('setId') setId: string,
+    @Body() dto: CreateCardDto,
+    @Req() req,
+  ) {
     return this.cardSetsService.createCard(setId, dto, req.user.userId);
   }
 
@@ -148,46 +159,19 @@ export class MemoController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        // All images go to photos directory
-        const uploadDir = join(process.cwd(), 'uploads', 'memo', 'photos');
-        if (!existsSync(uploadDir)) {
-          mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = uuidv4();
-        const ext = file.originalname.split('.').pop();
-        cb(null, `${uniqueSuffix}.${ext}`);
-      },
-    }),
-    fileFilter: (req, file, cb) => {
-      if (!file.mimetype.startsWith('image/')) {
-        return cb(new BadRequestException('Only image files are allowed'), false);
-      }
-      cb(null, true);
-    },
-    limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-    },
-  }))
+  @UseInterceptors(FileInterceptor('file'))
   @ApiResponse({ status: 201, description: 'Image uploaded' })
   async uploadCardImage(
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    console.log('uploadCardImage - file:', file?.filename, 'path:', file?.path);
-    
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
-    
-    const appUrl = this.configService.get<string>('app.url') || 'http://localhost:3000';
-    const url = `${appUrl}/uploads/memo/photos/${file.filename}`;
-    console.log('uploadCardImage - returning url:', url);
+
+    // file.location добавляется multer-s3
+    const url =
+      (file as any).location || this.filesService.getFileUrl((file as any).key);
     return { url };
   }
 
@@ -207,8 +191,16 @@ export class MemoController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get my games' })
   @ApiResponse({ status: 200, description: 'List of user games' })
-  getMyGames(@Req() req, @Query('status') status?: string, @Query('limit') limit = 20) {
-    return this.gamesService.findUserGames(req.user.userId, status, Number(limit));
+  getMyGames(
+    @Req() req,
+    @Query('status') status?: string,
+    @Query('limit') limit = 20,
+  ) {
+    return this.gamesService.findUserGames(
+      req.user.userId,
+      status,
+      Number(limit),
+    );
   }
 
   @Get('games/:id')
@@ -263,16 +255,20 @@ export class MemoController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Make a move' })
   @ApiResponse({ status: 200, description: 'Move result' })
-  async makeMove(@Param('id') id: string, @Body() dto: MakeMoveDto, @Req() req) {
+  async makeMove(
+    @Param('id') id: string,
+    @Body() dto: MakeMoveDto,
+    @Req() req,
+  ) {
     const userId = req.user.userId;
     // Get game player ID
     const game = await this.gamesService.findOne(id);
-    const gamePlayer = game.players.find(p => p.userId === userId);
-    
+    const gamePlayer = game.players.find((p) => p.userId === userId);
+
     if (!gamePlayer) {
       throw new BadRequestException('Player not found in this game');
     }
-    
+
     return this.gameMovesService.makeMove(id, gamePlayer.id, dto);
   }
 
@@ -283,7 +279,10 @@ export class MemoController {
   @ApiResponse({ status: 200, description: 'Leaderboard' })
   @UsePipes(new ValidationPipe({ transform: true }))
   getSingleLeaderboard(@Query() query: GetLeaderboardDto) {
-    return this.leaderboardService.getSinglePlayerLeaderboard(query.period, query.limit);
+    return this.leaderboardService.getSinglePlayerLeaderboard(
+      query.period,
+      query.limit,
+    );
   }
 
   @Get('leaderboard/multiplayer')
@@ -291,7 +290,10 @@ export class MemoController {
   @ApiResponse({ status: 200, description: 'Leaderboard' })
   @UsePipes(new ValidationPipe({ transform: true }))
   getMultiLeaderboard(@Query() query: GetLeaderboardDto) {
-    return this.leaderboardService.getMultiplayerLeaderboard(query.period, query.limit);
+    return this.leaderboardService.getMultiplayerLeaderboard(
+      query.period,
+      query.limit,
+    );
   }
 
   @Get('leaderboard/user/:userId')

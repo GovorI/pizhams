@@ -28,9 +28,17 @@ export class UsersController {
 
   @Post('register')
   @ApiOperation({ summary: 'Регистрация нового пользователя' })
-  @ApiResponse({ status: 201, description: 'Пользователь успешно зарегистрирован' })
-  @ApiResponse({ status: 409, description: 'Пользователь с таким email уже существует' })
-  async register(@Body() createUserDto: CreateUserDto): Promise<{ user: Partial<User> }> {
+  @ApiResponse({
+    status: 201,
+    description: 'Пользователь успешно зарегистрирован',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Пользователь с таким email уже существует',
+  })
+  async register(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<{ user: Partial<User> }> {
     const user = await this.usersService.create(createUserDto);
     const { password, ...result } = user;
     return { user: result };
@@ -69,20 +77,30 @@ export class UsersController {
     @Body('currentPassword') currentPassword: string,
     @Body('newPassword') newPassword: string,
   ): Promise<{ message: string }> {
-    await this.usersService.changePassword(req.user.id, currentPassword, newPassword);
+    await this.usersService.changePassword(
+      req.user.id,
+      currentPassword,
+      newPassword,
+    );
     return { message: 'Password changed successfully' };
   }
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Запрос на сброс пароля' })
-  @ApiResponse({ status: 200, description: 'Email отправлен если пользователь существует' })
+  @ApiResponse({
+    status: 200,
+    description: 'Email отправлен если пользователь существует',
+  })
   async forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ): Promise<{ message: string }> {
     await this.usersService.requestPasswordReset(forgotPasswordDto.email);
     // Always return success to prevent email enumeration
-    return { message: 'Если пользователь с таким email существует, вы получите инструкцию по сбросу пароля' };
+    return {
+      message:
+        'Если пользователь с таким email существует, вы получите инструкцию по сбросу пароля',
+    };
   }
 
   @Post('reset-password')

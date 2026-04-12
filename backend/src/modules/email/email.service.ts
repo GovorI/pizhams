@@ -48,12 +48,16 @@ export class EmailService {
             
             <div class="order-details">
               <h3>Детали заказа #${data.orderId.slice(0, 8)}</h3>
-              ${data.items.map(item => `
+              ${data.items
+                .map(
+                  (item) => `
                 <div class="item">
                   <strong>${item.productName}</strong><br>
                   Количество: ${item.quantity} × ${item.price} ₽ = ${item.quantity * item.price} ₽
                 </div>
-              `).join('')}
+              `,
+                )
+                .join('')}
               <div class="total">Итого: ${data.total} ₽</div>
             </div>
             
@@ -128,13 +132,19 @@ export class EmailService {
 
       this.logger.log(`Welcome email sent to ${email}`);
     } catch (error) {
-      this.logger.error(`Failed to send welcome email to ${email}: ${error.message}`);
+      this.logger.error(
+        `Failed to send welcome email to ${email}: ${error.message}`,
+      );
     }
   }
 
-  async sendPasswordReset(email: string, customerName: string, resetToken: string): Promise<void> {
+  async sendPasswordReset(
+    email: string,
+    customerName: string,
+    resetToken: string,
+  ): Promise<void> {
     const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -189,7 +199,9 @@ export class EmailService {
 
       this.logger.log(`Password reset email sent to ${email}`);
     } catch (error) {
-      this.logger.error(`Failed to send password reset email to ${email}: ${error.message}`);
+      this.logger.error(
+        `Failed to send password reset email to ${email}: ${error.message}`,
+      );
     }
   }
 }

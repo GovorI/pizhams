@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsBoolean, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateCardSetDto {
@@ -8,7 +14,10 @@ export class CreateCardSetDto {
   @MaxLength(100)
   name: string;
 
-  @ApiPropertyOptional({ example: 'Cute animals for kids', description: 'Описание набора' })
+  @ApiPropertyOptional({
+    example: 'Cute animals for kids',
+    description: 'Описание набора',
+  })
   @IsString()
   @IsOptional()
   @MaxLength(500)
@@ -21,14 +30,20 @@ export class CreateCardSetDto {
 }
 
 export class UpdateCardSetDto {
-  @ApiPropertyOptional({ example: 'Updated Animals', description: 'Название набора карточек' })
+  @ApiPropertyOptional({
+    example: 'Updated Animals',
+    description: 'Название набора карточек',
+  })
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   @IsOptional()
   name?: string;
 
-  @ApiPropertyOptional({ example: 'Updated description', description: 'Описание набора' })
+  @ApiPropertyOptional({
+    example: 'Updated description',
+    description: 'Описание набора',
+  })
   @IsString()
   @IsOptional()
   @MaxLength(500)

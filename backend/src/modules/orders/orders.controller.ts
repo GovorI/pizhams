@@ -30,9 +30,16 @@ export class OrdersController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Создать новый заказ' })
-  @ApiResponse({ status: 201, description: 'Заказ успешно создан', type: Order })
+  @ApiResponse({
+    status: 201,
+    description: 'Заказ успешно создан',
+    type: Order,
+  })
   @ApiResponse({ status: 400, description: 'Некорректные данные' })
-  async create(@Request() req, @Body() createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    @Request() req,
+    @Body() createOrderDto: CreateOrderDto,
+  ): Promise<Order> {
     // Add userId from authenticated user
     const orderWithUser = {
       ...createOrderDto,
@@ -68,27 +75,29 @@ export class OrdersController {
   @ApiResponse({ status: 200, description: 'CSV файл с заказами' })
   async exportToCsv(@Res() res: Response): Promise<any> {
     const orders = await this.ordersService.findAll();
-    
+
     // CSV Header
     const csvHeader = 'ID,Клиент,Email,Телефон,Адрес,Сумма,Статус,Дата\n';
-    
+
     // CSV Rows
-    const csvRows = orders.map(order => {
-      const escapeCsv = (str: string) => `"${str.replace(/"/g, '""')}"`;
-      return [
-        order.id.slice(0, 8),
-        escapeCsv(order.customerName),
-        escapeCsv(order.customerEmail),
-        escapeCsv(order.customerPhone),
-        escapeCsv(order.customerAddress),
-        order.total,
-        order.status,
-        new Date(order.createdAt).toISOString(),
-      ].join(',');
-    }).join('\n');
-    
+    const csvRows = orders
+      .map((order) => {
+        const escapeCsv = (str: string) => `"${str.replace(/"/g, '""')}"`;
+        return [
+          order.id.slice(0, 8),
+          escapeCsv(order.customerName),
+          escapeCsv(order.customerEmail),
+          escapeCsv(order.customerPhone),
+          escapeCsv(order.customerAddress),
+          order.total,
+          order.status,
+          new Date(order.createdAt).toISOString(),
+        ].join(',');
+      })
+      .join('\n');
+
     const csv = csvHeader + csvRows;
-    
+
     res.send(csv);
     return res;
   }

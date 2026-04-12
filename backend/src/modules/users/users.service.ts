@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
@@ -65,7 +70,9 @@ export class UsersService {
     const user = await this.findById(userId);
 
     if (email && email !== user.email) {
-      const existingUser = await this.userRepository.findOne({ where: { email } });
+      const existingUser = await this.userRepository.findOne({
+        where: { email },
+      });
       if (existingUser) {
         throw new ConflictException('Email already in use');
       }
@@ -75,7 +82,11 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
     const user = await this.findById(userId);
 
     const isPasswordValid = await this.validatePassword(user, currentPassword);

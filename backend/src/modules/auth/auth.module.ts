@@ -18,10 +18,13 @@ import type { JwtModuleOptions } from '@nestjs/jwt';
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService): Promise<JwtModuleOptions> => ({
+      useFactory: async (
+        configService: ConfigService,
+      ): Promise<JwtModuleOptions> => ({
         secret: configService.get<string>('JWT_SECRET') || 'default-secret',
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION') || '7d' as any,
+          expiresIn:
+            configService.get<string>('JWT_EXPIRATION') || ('7d' as any),
         },
       }),
       inject: [ConfigService],

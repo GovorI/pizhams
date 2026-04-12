@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { MemoRepository } from '../memo.repository';
 import { MakeMoveDto } from '../dto/make-move.dto';
 import { GameStatus, GameMode } from '../entities/game.entity';
@@ -15,7 +20,11 @@ export interface MoveResult {
 export class GameMovesService {
   constructor(private memoRepository: MemoRepository) {}
 
-  async makeMove(gameId: string, gamePlayerId: string, dto: MakeMoveDto): Promise<MoveResult> {
+  async makeMove(
+    gameId: string,
+    gamePlayerId: string,
+    dto: MakeMoveDto,
+  ): Promise<MoveResult> {
     const game = await this.memoRepository.findGameById(gameId);
     if (!game) {
       throw new NotFoundException('Game not found');
@@ -25,7 +34,9 @@ export class GameMovesService {
       throw new BadRequestException('Game is not in progress');
     }
 
-    const gamePlayer = await this.memoRepository['gamePlayerRepository'].findOne({ where: { id: gamePlayerId } });
+    const gamePlayer = await this.memoRepository[
+      'gamePlayerRepository'
+    ].findOne({ where: { id: gamePlayerId } });
     if (!gamePlayer) {
       throw new NotFoundException('Player not found');
     }
@@ -36,8 +47,12 @@ export class GameMovesService {
     }
 
     // Get cards to check if they match
-    const card1 = await this.memoRepository['cardRepository'].findOne({ where: { id: dto.card1Id } });
-    const card2 = await this.memoRepository['cardRepository'].findOne({ where: { id: dto.card2Id } });
+    const card1 = await this.memoRepository['cardRepository'].findOne({
+      where: { id: dto.card1Id },
+    });
+    const card2 = await this.memoRepository['cardRepository'].findOne({
+      where: { id: dto.card2Id },
+    });
 
     if (!card1 || !card2) {
       throw new NotFoundException('Card not found');
@@ -78,7 +93,9 @@ export class GameMovesService {
 
     // If not a match, switch to next player
     if (!isMatch) {
-      const currentPlayerIndex = players.findIndex((p) => p.id === gamePlayer.id);
+      const currentPlayerIndex = players.findIndex(
+        (p) => p.id === gamePlayer.id,
+      );
       const nextIndex = (currentPlayerIndex + 1) % players.length;
       nextPlayerId = players[nextIndex].userId;
       game.currentPlayerId = nextPlayerId;
@@ -100,8 +117,10 @@ export class GameMovesService {
       game.winnerId = winner.userId;
 
       // Calculate time spent
-      const timeSpent = game.startedAt 
-        ? Math.floor((game.finishedAt.getTime() - game.startedAt.getTime()) / 1000)
+      const timeSpent = game.startedAt
+        ? Math.floor(
+            (game.finishedAt.getTime() - game.startedAt.getTime()) / 1000,
+          )
         : 0;
 
       // Update user stats for all players
@@ -131,10 +150,10 @@ export class GameMovesService {
 
   private async updateUserStats(
     userId: string,
-    delta: { 
-      gamesPlayed: number; 
-      gamesWon: number; 
-      totalPairsFound: number; 
+    delta: {
+      gamesPlayed: number;
+      gamesWon: number;
+      totalPairsFound: number;
       totalMoves: number;
       timeSpent?: number;
       isSinglePlayer?: boolean;

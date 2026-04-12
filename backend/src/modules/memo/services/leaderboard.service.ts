@@ -6,7 +6,10 @@ import { LeaderboardPeriod } from '../dto/leaderboard.dto';
 export class LeaderboardService {
   constructor(private memoRepository: MemoRepository) {}
 
-  async getSinglePlayerLeaderboard(period: LeaderboardPeriod = LeaderboardPeriod.ALL, limit = 100) {
+  async getSinglePlayerLeaderboard(
+    period: LeaderboardPeriod = LeaderboardPeriod.ALL,
+    limit = 100,
+  ) {
     const stats = await this.memoRepository.getLeaderboard(period, limit);
 
     return stats
@@ -32,7 +35,10 @@ export class LeaderboardService {
       }));
   }
 
-  async getMultiplayerLeaderboard(period: LeaderboardPeriod = LeaderboardPeriod.ALL, limit = 100) {
+  async getMultiplayerLeaderboard(
+    period: LeaderboardPeriod = LeaderboardPeriod.ALL,
+    limit = 100,
+  ) {
     const stats = await this.memoRepository.getLeaderboard(period, limit);
 
     return stats
@@ -53,7 +59,10 @@ export class LeaderboardService {
         email: stat.userId.slice(0, 8) + '@user',
         gamesWon: stat.gamesWon,
         gamesPlayed: stat.gamesPlayed,
-        winRate: stat.gamesPlayed > 0 ? (stat.gamesWon / stat.gamesPlayed * 100).toFixed(1) : '0',
+        winRate:
+          stat.gamesPlayed > 0
+            ? ((stat.gamesWon / stat.gamesPlayed) * 100).toFixed(1)
+            : '0',
         totalPairsFound: stat.totalPairsFound,
       }));
   }
@@ -79,7 +88,10 @@ export class LeaderboardService {
       totalPairsFound: stats.totalPairsFound,
       totalMoves: stats.totalMoves,
       bestTimeSingle: stats.bestTimeSingle,
-      winRate: stats.gamesPlayed > 0 ? (stats.gamesWon / stats.gamesPlayed * 100).toFixed(1) : '0',
+      winRate:
+        stats.gamesPlayed > 0
+          ? ((stats.gamesWon / stats.gamesPlayed) * 100).toFixed(1)
+          : '0',
     };
   }
 }

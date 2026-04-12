@@ -1,4 +1,11 @@
-import { IsString, IsNumber, IsArray, IsOptional, Min, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsArray,
+  IsOptional,
+  Min,
+  IsEnum,
+} from 'class-validator';
 import { ProductSize } from '../entities/product.entity';
 
 export class CreateProductDto {

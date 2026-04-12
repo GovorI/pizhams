@@ -32,9 +32,15 @@ async function bootstrap() {
   await client.query('TRUNCATE cards, card_sets CASCADE');
 
   // Get list of images
-  const imageFiles = fs.readdirSync(photoDir).filter(f => 
-    f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png') || f.endsWith('.webp')
-  );
+  const imageFiles = fs
+    .readdirSync(photoDir)
+    .filter(
+      (f) =>
+        f.endsWith('.jpg') ||
+        f.endsWith('.jpeg') ||
+        f.endsWith('.png') ||
+        f.endsWith('.webp'),
+    );
 
   console.log(`Found ${imageFiles.length} images`);
 
@@ -48,7 +54,7 @@ async function bootstrap() {
   const setResult = await client.query(
     `INSERT INTO card_sets (name, description, "isPublic", "createdAt", "updatedAt") 
      VALUES ($1, $2, $3, NOW(), NOW()) RETURNING id`,
-    ['📸 My Cards', 'Custom cards from photos', true]
+    ['📸 My Cards', 'Custom cards from photos', true],
   );
   const setId = setResult.rows[0].id;
 
@@ -62,12 +68,12 @@ async function bootstrap() {
   let cardIndex = 0;
   for (const imageFile of imageFiles) {
     const sourcePath = path.join(photoDir, imageFile);
-    
+
     // Copy file to upload directory with new name
     const ext = path.extname(imageFile);
     const newFileName = `card_${cardIndex}${ext}`;
     const destPath = path.join(setUploadDir, newFileName);
-    
+
     fs.copyFileSync(sourcePath, destPath);
     console.log(`✅ Copied ${imageFile} to uploads`);
 
@@ -80,15 +86,17 @@ async function bootstrap() {
       await client.query(
         `INSERT INTO cards (card_set_id, image_url, sort_order, "createdAt") 
          VALUES ($1, $2, $3, NOW())`,
-        [setId, imageUrl, cardIndex * 2 + i]
+        [setId, imageUrl, cardIndex * 2 + i],
       );
     }
-    
+
     cardIndex++;
   }
 
   const totalCards = cardIndex * 2;
-  console.log(`\n✅ Created card set with ${totalCards} cards (${cardIndex} pairs)`);
+  console.log(
+    `\n✅ Created card set with ${totalCards} cards (${cardIndex} pairs)`,
+  );
   console.log(`Set ID: ${setId}`);
   console.log(`Upload directory: ${setUploadDir}`);
 

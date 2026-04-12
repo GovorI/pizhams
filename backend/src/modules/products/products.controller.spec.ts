@@ -66,7 +66,10 @@ describe('ProductsController', () => {
         images: ['new.jpg'],
       };
 
-      mockProductsService.create.mockResolvedValue({ ...mockProduct, ...createDto });
+      mockProductsService.create.mockResolvedValue({
+        ...mockProduct,
+        ...createDto,
+      });
 
       const result = await controller.create(createDto);
 
@@ -95,7 +98,12 @@ describe('ProductsController', () => {
     });
 
     it('should accept filter parameters', async () => {
-      const filterDto: GetProductsFilterDto = { category: 'classic', size: ProductSize.M, page: 1, limit: 10 };
+      const filterDto: GetProductsFilterDto = {
+        category: 'classic',
+        size: ProductSize.M,
+        page: 1,
+        limit: 10,
+      };
       const paginatedResult = {
         data: [mockProduct],
         total: 1,

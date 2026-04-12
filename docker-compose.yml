@@ -55,10 +55,14 @@ services:
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
       FRONTEND_URL: http://localhost
       APP_URL: http://localhost
+      # R2 переменные опциональны для локальной разработки
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_BUCKET: ${R2_BUCKET:-pizhams}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
     ports:
       - '3000:3000'
-    volumes:
-      - backend_uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,7 +91,6 @@ services:
 
 volumes:
   postgres_data:
-  backend_uploads:
 
 networks:
   pizhams-network:

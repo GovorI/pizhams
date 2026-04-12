@@ -6,7 +6,7 @@ import { DataSource } from 'typeorm';
 
 /**
  * Orders E2E Tests
- * 
+ *
  * Note: Tests accept 404 status due to ts-jest route registration issues.
  */
 describe('Orders (e2e)', () => {
@@ -40,11 +40,11 @@ describe('Orders (e2e)', () => {
     const registerResponse = await request(app.getHttpServer())
       .post('/api/auth/register')
       .send({ email: 'user@example.com', password: 'user123' });
-    
+
     const loginResponse = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'user@example.com', password: 'user123' });
-    
+
     userToken = loginResponse.body.access_token;
   });
 
@@ -67,7 +67,13 @@ describe('Orders (e2e)', () => {
           customerEmail: 'test@example.com',
           customerAddress: 'Test Address',
           items: [
-            { productId: '1', productName: 'Product', quantity: 1, price: 1000, size: 'M' },
+            {
+              productId: '1',
+              productName: 'Product',
+              quantity: 1,
+              price: 1000,
+              size: 'M',
+            },
           ],
         });
 
@@ -90,15 +96,14 @@ describe('Orders (e2e)', () => {
 
       // 200 = success with array, 404 = route issue
       expect([200, 404]).toContain(response.status);
-      
+
       if (response.status === 200) {
         expect(Array.isArray(response.body)).toBe(true);
       }
     });
 
     it('should require authentication for my orders', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api/orders/my');
+      const response = await request(app.getHttpServer()).get('/api/orders/my');
 
       expect([401, 404]).toContain(response.status);
     });
