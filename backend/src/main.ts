@@ -37,8 +37,10 @@ async function bootstrap() {
   );
 
   // Security: CORS configuration
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  console.log('🔧 FRONTEND_URL:', frontendUrl);
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: [frontendUrl, 'http://localhost:5173', 'http://localhost:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
