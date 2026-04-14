@@ -17,6 +17,7 @@ import {
   BadRequestException,
   UsePipes,
   ValidationPipe,
+  Throttle,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -57,6 +58,7 @@ export class MemoController {
   // ========== Card Sets ==========
 
   @Get('card-sets')
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({ summary: 'Get all public card sets' })
   @ApiResponse({ status: 200, description: 'List of card sets' })
   getCardSets(@Query('limit') limit = 20) {
@@ -73,6 +75,7 @@ export class MemoController {
   }
 
   @Get('card-sets/:id')
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({ summary: 'Get card set by ID' })
   @ApiResponse({ status: 200, description: 'Card set details' })
   getCardSet(@Param('id') id: string, @Query('cards') includeCards = 'false') {

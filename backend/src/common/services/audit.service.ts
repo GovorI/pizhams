@@ -25,6 +25,7 @@ export enum AuditAction {
   FILE_DELETE = 'file.delete',
   FORBIDDEN_ACCESS = 'security.forbidden_access',
   INVALID_TOKEN = 'security.invalid_token',
+  RATE_LIMIT_EXCEEDED = 'security.rate_limit_exceeded',
 }
 
 export interface AuditEvent {

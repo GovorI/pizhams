@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Throttle,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -49,6 +50,7 @@ export class ProductsController {
   }
 
   @Get()
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({
     summary: 'Получить список товаров с фильтрацией и пагинацией',
   })

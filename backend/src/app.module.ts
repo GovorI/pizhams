@@ -17,12 +17,10 @@ import { S3Module } from './modules/s3/s3.module';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000, // 1 minute
-        limit: 10, // 10 requests per minute
-      },
-    ]),
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 1 minute
+      limit: 30, // 30 requests per minute (default for all endpoints)
+    }]),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig, authConfig],

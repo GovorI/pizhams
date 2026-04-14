@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   Query,
+  Throttle,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ReviewsService } from './reviews.service';
@@ -36,6 +37,7 @@ export class ReviewsController {
   }
 
   @Get('product/:productId')
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({ summary: 'Получить отзывы о товаре' })
   @ApiResponse({ status: 200, description: 'Список отзывов' })
   findByProduct(@Param('productId') productId: string) {
@@ -43,6 +45,7 @@ export class ReviewsController {
   }
 
   @Get('average/:productId')
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({ summary: 'Получить средний рейтинг товара' })
   @ApiResponse({ status: 200, description: 'Средний рейтинг' })
   getAverageRating(@Param('productId') productId: string) {
