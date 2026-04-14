@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import { CardSet } from './entities/card-set.entity';
 import { Card } from './entities/card.entity';
 import { Game } from './entities/game.entity';
@@ -81,6 +81,16 @@ export class MemoRepository {
   }
 
   async deleteCardSet(id: string): Promise<void> {
+    // Delete game moves for games using this card set
+    const games = await this.gameRepository.find({ where: { cardSetId: id } });
+    if (games.length > 0) {
+      const gameIds = games.map((g) => g.id);
+      await this.gameMoveRepository.delete({ gameId: In(gameIds) });
+      await this.gamePlayerRepository.delete({ gameId: In(gameIds) });
+      await this.gameRepository.delete({ cardSetId: id });
+    }
+
+    // Cards will be cascaded by TypeORM (cascade: true on CardSet.cards)
     await this.cardSetRepository.delete(id);
   }
 
