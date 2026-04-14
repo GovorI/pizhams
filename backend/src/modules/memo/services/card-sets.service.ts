@@ -49,13 +49,14 @@ export class CardSetsService {
     return this.memoRepository.updateCardSet(id, dto);
   }
 
-  async delete(id: string, userId: string) {
+  async delete(id: string, userId: string, userRole?: string) {
     const cardSet = await this.memoRepository.findCardSetById(id);
     if (!cardSet) {
       throw new NotFoundException('Card set not found');
     }
 
-    if (cardSet.ownerId !== userId) {
+    // Admin can delete any card set
+    if (userRole !== 'admin' && cardSet.ownerId !== userId) {
       throw new ForbiddenException('You can only delete your own card sets');
     }
 

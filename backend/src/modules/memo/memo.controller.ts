@@ -102,10 +102,10 @@ export class MemoController {
   @Delete('card-sets/:id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete card set' })
+  @ApiOperation({ summary: 'Delete card set (admin can delete any set)' })
   @ApiResponse({ status: 200, description: 'Card set deleted' })
   deleteCardSet(@Param('id') id: string, @Req() req) {
-    return this.cardSetsService.delete(id, req.user.userId);
+    return this.cardSetsService.delete(id, req.user.userId, req.user.role);
   }
 
   // ========== Cards ==========
