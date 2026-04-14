@@ -37,12 +37,12 @@ export class FilesController {
       throw new BadRequestException('No file uploaded');
     }
 
-    // file.location и file.key добавляются multer-s3
-    const fileUrl =
-      (file as any).location || this.filesService.getFileUrl((file as any).key);
+    // Always use our getFileUrl() which uses R2_PUBLIC_URL, not multer-s3's S3 endpoint
+    const key = (file as any).key;
+    const fileUrl = this.filesService.getFileUrl(key);
 
     return {
-      filename: (file as any).key,
+      filename: key,
       originalname: file.originalname,
       url: fileUrl,
       size: file.size,
@@ -65,9 +65,7 @@ export class FilesController {
     return files.map((file) => ({
       filename: (file as any).key,
       originalname: file.originalname,
-      url:
-        (file as any).location ||
-        this.filesService.getFileUrl((file as any).key),
+      url: this.filesService.getFileUrl((file as any).key),
       size: file.size,
       mimetype: file.mimetype,
     }));

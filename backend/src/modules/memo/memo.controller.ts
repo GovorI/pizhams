@@ -169,9 +169,8 @@ export class MemoController {
       throw new BadRequestException('No file uploaded');
     }
 
-    // file.location добавляется multer-s3
-    const url =
-      (file as any).location || this.filesService.getFileUrl((file as any).key);
+    // Always use getFileUrl() which uses R2_PUBLIC_URL
+    const url = this.filesService.getFileUrl((file as any).key);
     return { url };
   }
 
