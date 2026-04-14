@@ -93,6 +93,40 @@
   font-size: 1.3rem;
   color: #333;
   margin: 0 0 8px;
+  padding-right: 28px;
+}
+
+.card-set-card {
+  position: relative;
+}
+
+.card-delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  opacity: 0;
+}
+
+.card-set-card:hover .card-delete-btn {
+  opacity: 1;
+}
+
+.card-delete-btn:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.1);
 }
 
 .card-set-card p {
@@ -140,16 +174,6 @@
   color: white;
 }
 
-.card-set-actions .delete-btn {
-  border-color: #dc3545;
-  color: #dc3545;
-}
-
-.card-set-actions .delete-btn:hover {
-  background: #dc3545;
-  color: white;
-}
-
 /* Admin section */
 .card-sets-section .admin-hint {
   color: #856404;
@@ -162,6 +186,10 @@
 
 .admin-card {
   border: 2px solid #ffc107;
+}
+
+.admin-card .card-delete-btn {
+  opacity: 1;
 }
 
 /* Modal */

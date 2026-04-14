@@ -96,15 +96,19 @@ export const CardSetsPage: React.FC = () => {
             <div className="card-sets-grid">
               {mySets.map((set) => (
                 <div key={set.id} className="card-set-card">
+                  <button
+                    className="card-delete-btn"
+                    onClick={() => handleDeleteSet(set.id, set.name)}
+                    title="Удалить набор"
+                  >
+                    ✕
+                  </button>
                   <h3>{set.name}</h3>
                   <p>{set.description || 'Нет описания'}</p>
                   <span className="cards-count">{set.cardsCount || 0} карточек</span>
                   <div className="card-set-actions">
                     <button onClick={() => navigate(`/memo/sets/${set.id}/edit`)}>
                       Редактировать
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDeleteSet(set.id, set.name)}>
-                      🗑️ Удалить
                     </button>
                     <button onClick={() => handlePlaySet(set.id, GameMode.SINGLE)}>
                       Одиночная игра
@@ -132,13 +136,17 @@ export const CardSetsPage: React.FC = () => {
             <div className="card-sets-grid">
               {publicSets.map((set) => (
                 <div key={set.id} className="card-set-card admin-card">
+                  <button
+                    className="card-delete-btn"
+                    onClick={() => handleDeleteSet(set.id, set.name)}
+                    title="Удалить набор"
+                  >
+                    ✕
+                  </button>
                   <h3>{set.name}</h3>
                   <p>{set.description || 'Нет описания'}</p>
                   <span className="cards-count">{set.cardsCount || 0} карточек</span>
                   <div className="card-set-actions">
-                    <button className="delete-btn" onClick={() => handleDeleteSet(set.id, set.name)}>
-                      🗑️ Удалить
-                    </button>
                     <button onClick={() => navigate(`/memo/sets/${set.id}/edit`)}>
                       Редактировать
                     </button>
