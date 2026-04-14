@@ -7,10 +7,14 @@ import {
 import { MemoRepository } from '../memo.repository';
 import { CreateGameDto, GridSize } from '../dto/create-game.dto';
 import { GameMode, GameStatus } from '../entities/game.entity';
+import { AuditService, AuditAction } from '../../../common/services/audit.service';
 
 @Injectable()
 export class GamesService {
-  constructor(private memoRepository: MemoRepository) {}
+  constructor(
+    private memoRepository: MemoRepository,
+    private auditService: AuditService,
+  ) {}
 
   private gridSizeMap: Record<GridSize, { rows: number; cols: number }> = {
     [GridSize.SMALL]: { rows: 3, cols: 2 }, // 6 cards
@@ -69,6 +73,17 @@ export class GamesService {
       score: 0,
       moves: 0,
       timeSpent: 0,
+    });
+
+    this.auditService.log({
+      action: AuditAction.MEMO_GAME_CREATE,
+      userId,
+      details: {
+        gameId: game.id,
+        mode: dto.mode,
+        cardSetId: dto.cardSetId,
+        gridSize: `${gridRows}x${gridCols}`,
+      },
     });
 
     return this.memoRepository.findGameById(game.id);
@@ -170,6 +185,16 @@ export class GamesService {
       // Delete game moves first (foreign key constraint)
       await this.memoRepository['gameMoveRepository'].delete({ gameId });
       await this.memoRepository['gameRepository'].delete(gameId);
+
+      this.auditService.log({
+        action: AuditAction.MEMO_GAME_LEAVE,
+        userId,
+        details: {
+          gameId,
+          reason: 'All players left - game deleted',
+        },
+      });
+
       return null;
     }
 

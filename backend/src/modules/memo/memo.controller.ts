@@ -39,6 +39,7 @@ import { CreateCardDto, UpdateCardDto } from './dto/create-card.dto';
 import { CreateGameDto } from './dto/create-game.dto';
 import { MakeMoveDto } from './dto/make-move.dto';
 import { GetLeaderboardDto, LeaderboardPeriod } from './dto/leaderboard.dto';
+import { AuditService, AuditAction } from '../../common/services/audit.service';
 
 @ApiTags('Memo Game')
 @Controller('memo')
@@ -50,6 +51,7 @@ export class MemoController {
     private leaderboardService: LeaderboardService,
     private filesService: MemoFilesService,
     private configService: ConfigService,
+    private auditService: AuditService,
   ) {}
 
   // ========== Card Sets ==========
@@ -83,6 +85,13 @@ export class MemoController {
   @ApiOperation({ summary: 'Create a new card set' })
   @ApiResponse({ status: 201, description: 'Card set created' })
   createCardSet(@Body() dto: CreateCardSetDto, @Req() req) {
+    this.auditService.log({
+      action: AuditAction.MEMO_CARDSET_CREATE,
+      userId: req.user.userId,
+      email: req.user.email,
+      role: req.user.role,
+      details: { name: dto.name, isPublic: dto.isPublic },
+    });
     return this.cardSetsService.createCardSet(dto, req.user.userId);
   }
 
@@ -105,6 +114,13 @@ export class MemoController {
   @ApiOperation({ summary: 'Delete card set (admin can delete any set)' })
   @ApiResponse({ status: 200, description: 'Card set deleted' })
   deleteCardSet(@Param('id') id: string, @Req() req) {
+    this.auditService.log({
+      action: AuditAction.MEMO_CARDSET_DELETE,
+      userId: req.user.userId,
+      email: req.user.email,
+      role: req.user.role,
+      details: { cardSetId: id },
+    });
     return this.cardSetsService.delete(id, req.user.userId, req.user.role);
   }
 
@@ -164,6 +180,7 @@ export class MemoController {
   async uploadCardImage(
     @UploadedFile()
     file: Express.Multer.File,
+    @Req() req,
   ) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
@@ -171,6 +188,19 @@ export class MemoController {
 
     // Always use getFileUrl() which uses R2_PUBLIC_URL
     const url = this.filesService.getFileUrl((file as any).key);
+
+    this.auditService.log({
+      action: AuditAction.MEMO_IMAGE_UPLOAD,
+      userId: req.user.userId,
+      email: req.user.email,
+      role: req.user.role,
+      details: {
+        filename: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+      },
+    });
+
     return { url };
   }
 

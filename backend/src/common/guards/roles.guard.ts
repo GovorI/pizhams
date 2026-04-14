@@ -3,10 +3,12 @@ import {
   ExecutionContext,
   Injectable,
   Logger,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { AuditService, AuditAction } from '../services/audit.service';
 
 export const ROLES_KEY = 'roles';
 
@@ -18,6 +20,7 @@ export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private configService: ConfigService,
+    private auditService: AuditService,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -36,7 +39,15 @@ export class RolesGuard implements CanActivate {
     const token = authHeader?.split(' ')[1];
 
     if (!token) {
-      this.logger.warn('No token found');
+      this.auditService.warn({
+        action: AuditAction.FORBIDDEN_ACCESS,
+        details: {
+          path: request.url,
+          method: request.method,
+          reason: 'No token provided',
+        },
+        ipAddress: request.ip,
+      });
       return false;
     }
 
@@ -49,20 +60,40 @@ export class RolesGuard implements CanActivate {
       }
       
       const user = this.jwtService.verify(token);
-      this.logger.log(`Decoded user role: ${user.role}`);
       
       request.user = user;
       const hasRole = requiredRoles.some((role) => user.role === role);
       
       if (!hasRole) {
-        this.logger.warn(
-          `User role "${user.role}" doesn't match required: ${requiredRoles.join(', ')}`,
-        );
+        this.auditService.warn({
+          action: AuditAction.FORBIDDEN_ACCESS,
+          userId: user.sub,
+          email: user.email,
+          role: user.role,
+          details: {
+            path: request.url,
+            method: request.method,
+            requiredRoles,
+            userRole: user.role,
+            reason: 'Insufficient permissions',
+          },
+          ipAddress: request.ip,
+        });
+        return false;
       }
       
-      return hasRole;
+      this.logger.log(`✅ Role check passed: ${user.role} for ${request.url}`);
+      return true;
     } catch (error) {
-      this.logger.error(`Token verification failed: ${error.message}`);
+      this.auditService.error({
+        action: AuditAction.INVALID_TOKEN,
+        details: {
+          path: request.url,
+          method: request.method,
+          reason: error.message,
+        },
+        ipAddress: request.ip,
+      }, error.message);
       return false;
     }
   }

@@ -50,9 +50,7 @@ export class FilesService {
   getFileUrl(key: string): string {
     // key уже содержит полный путь включая products/
     const baseUrl = this.s3Service.getPublicUrl();
-    const fullUrl = baseUrl + '/' + key;
-    this.logger.log(`📁 Generated file URL: ${fullUrl}`);
-    return fullUrl;
+    return baseUrl + '/' + key;
   }
 
   async deleteFile(key: string): Promise<void> {
