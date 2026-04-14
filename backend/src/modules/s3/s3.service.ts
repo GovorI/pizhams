@@ -53,6 +53,8 @@ export class S3Service implements OnModuleInit {
     // Публичный URL для доступа к файлам
     // Если используется R2 Public Access Endpoint
     const publicUrl = this.configService.get<string>('R2_PUBLIC_URL');
+    this.logger.log(`🔍 R2_PUBLIC_URL from config: ${publicUrl || 'NOT SET'}`);
+    
     if (publicUrl) {
       return publicUrl;
     }
@@ -60,7 +62,9 @@ export class S3Service implements OnModuleInit {
     // Fallback: используем endpoint URL
     const accountId = this.configService.get<string>('R2_ACCOUNT_ID');
     const bucket = this.getBucket();
-    return `https://${bucket}.${accountId}.r2.cloudflarestorage.com`;
+    const fallbackUrl = `https://${bucket}.${accountId}.r2.cloudflarestorage.com`;
+    this.logger.warn(`⚠️  Using fallback URL: ${fallbackUrl}`);
+    return fallbackUrl;
   }
 
   isConfigured(): boolean {

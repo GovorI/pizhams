@@ -129,7 +129,10 @@ export class MemoFilesService {
   }
 
   getFileUrl(key: string): string {
-    return this.s3Service.getPublicUrl() + '/' + key;
+    const baseUrl = this.s3Service.getPublicUrl();
+    const fullUrl = baseUrl + '/' + key;
+    this.logger.log(`📁 Generated memo file URL: ${fullUrl}`);
+    return fullUrl;
   }
 
   async deleteFile(key: string): Promise<void> {
