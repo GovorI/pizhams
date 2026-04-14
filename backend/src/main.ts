@@ -10,9 +10,20 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // Security: CORS configuration (MUST be before Helmet)
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  console.log('🔧 FRONTEND_URL:', frontendUrl);
+  app.enableCors({
+    origin: [frontendUrl, 'http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
   // Security: Helmet for security headers
   app.use(
     helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
@@ -35,16 +46,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
-  // Security: CORS configuration
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  console.log('🔧 FRONTEND_URL:', frontendUrl);
-  app.enableCors({
-    origin: [frontendUrl, 'http://localhost:5173', 'http://localhost:3000'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
 
   const config = new DocumentBuilder()
     .setTitle('Pizhams API')
