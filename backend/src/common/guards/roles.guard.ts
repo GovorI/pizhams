@@ -3,21 +3,21 @@ import {
   ExecutionContext,
   Injectable,
   Logger,
-  ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { ModuleRef } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 
 export const ROLES_KEY = 'roles';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   private readonly logger = new Logger(RolesGuard.name);
+  private jwtService: JwtService;
 
   constructor(
     private reflector: Reflector,
-    private moduleRef: ModuleRef,
+    private configService: ConfigService,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -32,7 +32,6 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
-    this.logger.log(`Auth header: ${authHeader?.substring(0, 30)}...`);
     
     const token = authHeader?.split(' ')[1];
 
@@ -42,9 +41,15 @@ export class RolesGuard implements CanActivate {
     }
 
     try {
-      const jwtService = this.moduleRef.get(JwtService, { strict: false });
-      const user = jwtService.verify(token);
-      this.logger.log(`Decoded user: ${JSON.stringify(user)}`);
+      // Create JwtService with the same secret as used in JwtStrategy
+      if (!this.jwtService) {
+        this.jwtService = new JwtService({
+          secret: this.configService.get<string>('JWT_SECRET') || 'default-secret',
+        });
+      }
+      
+      const user = this.jwtService.verify(token);
+      this.logger.log(`Decoded user role: ${user.role}`);
       
       request.user = user;
       const hasRole = requiredRoles.some((role) => user.role === role);
