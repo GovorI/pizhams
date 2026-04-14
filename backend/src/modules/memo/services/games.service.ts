@@ -167,6 +167,8 @@ export class GamesService {
     // If no players left, delete the game
     const remainingPlayers = await this.memoRepository.findGamePlayers(gameId);
     if (remainingPlayers.length === 0) {
+      // Delete game moves first (foreign key constraint)
+      await this.memoRepository['gameMoveRepository'].delete({ gameId });
       await this.memoRepository['gameRepository'].delete(gameId);
       return null;
     }
