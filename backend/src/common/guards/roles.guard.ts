@@ -1,4 +1,10 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ModuleRef } from '@nestjs/core';
@@ -7,6 +13,8 @@ export const ROLES_KEY = 'roles';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+  private readonly logger = new Logger(RolesGuard.name);
+
   constructor(
     private reflector: Reflector,
     private moduleRef: ModuleRef,
@@ -23,18 +31,33 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization?.split(' ')[1];
+    const authHeader = request.headers.authorization;
+    this.logger.log(`Auth header: ${authHeader?.substring(0, 30)}...`);
+    
+    const token = authHeader?.split(' ')[1];
 
     if (!token) {
+      this.logger.warn('No token found');
       return false;
     }
 
     try {
       const jwtService = this.moduleRef.get(JwtService, { strict: false });
       const user = jwtService.verify(token);
+      this.logger.log(`Decoded user: ${JSON.stringify(user)}`);
+      
       request.user = user;
-      return requiredRoles.some((role) => user.role === role);
-    } catch {
+      const hasRole = requiredRoles.some((role) => user.role === role);
+      
+      if (!hasRole) {
+        this.logger.warn(
+          `User role "${user.role}" doesn't match required: ${requiredRoles.join(', ')}`,
+        );
+      }
+      
+      return hasRole;
+    } catch (error) {
+      this.logger.error(`Token verification failed: ${error.message}`);
       return false;
     }
   }
