@@ -124,6 +124,7 @@ export const MemoGamePage: React.FC = () => {
     try {
       if (isMultiplayer) {
         wsStartGame();
+        toast.success('Игра начинается!');
       } else {
         await startGame({ id: id! }).unwrap();
         toast.success('Игра началась!');
