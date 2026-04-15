@@ -94,20 +94,21 @@ export const MemoGamePage: React.FC = () => {
       }
     };
 
-    // Join the game first
+    // Join the game if waiting (for both single and multiplayer)
     if (game.status === 'waiting') {
       joinGame({ id })
         .unwrap()
         .then(() => {
-          // Auto-start for single player
+          // Auto-start only for single player
           if (game.mode === 'single') {
             startSinglePlayerGame();
           }
         })
         .catch((err) => {
-          console.error('Failed to join game:', err);
-          toast.error('Не удалось присоединиться к игре');
-          navigate('/memo');
+          // If already joined (idempotent), that's fine
+          if (!err?.data?.message?.includes('already')) {
+            console.error('Failed to join game:', err);
+          }
         });
     }
   }, [id, game?.id]); // Changed dependency to game.id to run once when game loads

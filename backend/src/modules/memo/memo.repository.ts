@@ -164,7 +164,6 @@ export class MemoRepository {
       .leftJoinAndSelect('players.user', 'user')
       .where('game.status = :status', { status: GameStatus.WAITING })
       .andWhere('game.mode = :mode', { mode: GameMode.MULTIPLAYER })
-      .andWhere('game.gridRows * game.gridCols <= (SELECT COUNT(*) FROM cards WHERE cardSetId = game.cardSetId) * 2')
       .orderBy('game.createdAt', 'DESC')
       .limit(limit);
 
