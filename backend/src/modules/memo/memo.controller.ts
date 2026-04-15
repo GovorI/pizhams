@@ -17,8 +17,8 @@ import {
   BadRequestException,
   UsePipes,
   ValidationPipe,
-  Throttle,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
@@ -27,6 +27,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CardSetsService } from './services/card-sets.service';
@@ -216,6 +217,19 @@ export class MemoController {
   @ApiResponse({ status: 201, description: 'Game created' })
   createGame(@Body() dto: CreateGameDto, @Req() req) {
     return this.gamesService.createGame(dto, req.user.userId);
+  }
+
+  @Get('games/waiting')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get waiting multiplayer games (for matchmaking)' })
+  @ApiResponse({ status: 200, description: 'List of waiting games' })
+  @ApiQuery({ name: 'cardSetId', required: false, type: String })
+  getWaitingGames(
+    @Query('cardSetId') cardSetId?: string,
+    @Query('limit') limit = 20,
+  ) {
+    return this.gamesService.findWaitingMultiplayerGames(cardSetId, Number(limit));
   }
 
   @Get('games/my')

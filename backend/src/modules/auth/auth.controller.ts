@@ -7,8 +7,8 @@ import {
   Request,
   HttpCode,
   HttpStatus,
-  Throttle,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from '../users/dto/create-user.dto';

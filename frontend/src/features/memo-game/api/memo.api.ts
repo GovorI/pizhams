@@ -119,6 +119,12 @@ export const memoApi = api.injectEndpoints({
       invalidatesTags: ['MemoGame'],
     }),
 
+    getWaitingGames: builder.query<Game[], { cardSetId?: string; limit?: number }>({
+      query: ({ cardSetId, limit = 20 }) =>
+        `/memo/games/waiting?${cardSetId ? `cardSetId=${cardSetId}&` : ''}limit=${limit}`,
+      providesTags: ['MemoGame'],
+    }),
+
     getMyGames: builder.query<Game[], { status?: string; limit?: number }>({
       query: ({ status, limit = 20 }) =>
         `/memo/games/my?${status ? `status=${status}` : ''}&limit=${limit}`,
@@ -210,6 +216,7 @@ export const {
   useDeleteCardMutation,
   useUploadCardImageMutation,
   useCreateGameMutation,
+  useGetWaitingGamesQuery,
   useGetMyGamesQuery,
   useGetGameQuery,
   useStartGameMutation,

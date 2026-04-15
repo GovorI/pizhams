@@ -9,8 +9,8 @@ import {
   UseGuards,
   Request,
   Query,
-  Throttle,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto, UpdateReviewDto } from './dto/create-review.dto';

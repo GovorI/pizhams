@@ -1,0 +1,240 @@
+.multiplayer-page {
+  min-height: 100vh;
+  padding: 20px;
+  background: #f5f7fa;
+}
+
+.multiplayer-header {
+  max-width: 1200px;
+  margin: 0 auto 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.multiplayer-header h1 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.back-btn {
+  background: #f0f0f0;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.back-btn:hover {
+  background: #e0e0e0;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: transform 0.3s;
+}
+
+.refresh-btn:hover {
+  transform: scale(1.05);
+}
+
+.multiplayer-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+}
+
+.multiplayer-section h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.section-hint {
+  color: #666;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.games-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.game-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.game-card.my-game {
+  border: 2px solid #667eea;
+}
+
+.game-info h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin: 0 0 12px;
+}
+
+.game-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.grid-size {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.players-count {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.game-players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.player-badge {
+  background: #f5f5f5;
+  color: #555;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+}
+
+.join-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: transform 0.3s;
+}
+
+.join-btn:hover {
+  transform: scale(1.02);
+}
+
+.no-games {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 16px;
+  color: #666;
+}
+
+.create-btn {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: transform 0.3s;
+}
+
+.create-btn:hover {
+  transform: scale(1.05);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.how-to-play {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.how-to-play ol {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.how-to-play li {
+  margin-bottom: 12px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.how-to-play li:last-child {
+  margin-bottom: 0;
+}
+
+.multiplayer-error {
+  max-width: 400px;
+  margin: 100px auto;
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.multiplayer-error h2 {
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.multiplayer-error button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+@media (max-width: 576px) {
+  .multiplayer-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .games-list {
+    grid-template-columns: 1fr;
+  }
+}

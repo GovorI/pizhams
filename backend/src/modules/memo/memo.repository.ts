@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Repository, In } from 'typeorm';
 import { CardSet } from './entities/card-set.entity';
 import { Card } from './entities/card.entity';
-import { Game } from './entities/game.entity';
+import { Game, GameMode, GameStatus } from './entities/game.entity';
 import { GamePlayer } from './entities/game-player.entity';
 import { GameMove } from './entities/game-move.entity';
 import { UserStats } from './entities/user-stats.entity';
@@ -151,6 +151,28 @@ export class MemoRepository {
 
     await this.gameRepository.update(id, updateData);
     return this.findGameById(id);
+  }
+
+  async findWaitingMultiplayerGames(
+    cardSetId?: string,
+    limit = 20,
+  ): Promise<Game[]> {
+    const query = this.gameRepository
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.cardSet', 'cardSet')
+      .leftJoinAndSelect('game.players', 'players')
+      .leftJoinAndSelect('players.user', 'user')
+      .where('game.status = :status', { status: GameStatus.WAITING })
+      .andWhere('game.mode = :mode', { mode: GameMode.MULTIPLAYER })
+      .andWhere('game.gridRows * game.gridCols <= (SELECT COUNT(*) FROM cards WHERE cardSetId = game.cardSetId) * 2')
+      .orderBy('game.createdAt', 'DESC')
+      .limit(limit);
+
+    if (cardSetId) {
+      query.andWhere('game.cardSetId = :cardSetId', { cardSetId });
+    }
+
+    return query.getMany();
   }
 
   async findUserGames(

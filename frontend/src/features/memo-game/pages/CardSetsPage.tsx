@@ -59,6 +59,12 @@ export const CardSetsPage: React.FC = () => {
   };
 
   const handlePlaySet = async (setId: string, mode: GameMode) => {
+    if (mode === GameMode.MULTIPLAYER) {
+      // Navigate to multiplayer waiting page with pre-selected card set
+      navigate(`/memo/multiplayer?cardSetId=${setId}`);
+      return;
+    }
+
     try {
       const game = await createGame({
         cardSetId: setId,

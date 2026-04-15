@@ -89,6 +89,10 @@ export class GamesService {
     return this.memoRepository.findGameById(game.id);
   }
 
+  async findWaitingMultiplayerGames(cardSetId?: string, limit = 20) {
+    return this.memoRepository.findWaitingMultiplayerGames(cardSetId, limit);
+  }
+
   async findOne(id: string) {
     const game = await this.memoRepository.findGameById(id);
     if (!game) {
