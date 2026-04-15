@@ -1,11 +1,12 @@
-import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import {
   useGetWaitingGamesQuery,
   useCreateGameMutation,
   useJoinGameMutation,
+  useGetMyCardSetsQuery,
 } from '../api/memo.api';
 import type { RootState } from '@app/store';
 import { GameMode, GridSize } from '../api/memo.types';
@@ -13,31 +14,36 @@ import './MultiplayerPage.css';
 
 export const MultiplayerPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const token = useSelector((state: RootState) => state.auth.token);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
-  const cardSetId = searchParams.get('cardSetId') || undefined;
 
   const [createGame] = useCreateGameMutation();
   const [joinGame] = useJoinGameMutation();
 
   const { data: waitingGames, isLoading, refetch } = useGetWaitingGamesQuery(
-    { cardSetId, limit: 50 },
-    { skip: !token, refetchOnMountOrArgChange: 5 }, // Refetch every 5 seconds
+    { limit: 50 },
+    { skip: !token, refetchOnMountOrArgChange: 5 },
   );
 
-  const handleCreateNewGame = async () => {
-    if (!cardSetId) {
+  const { data: myCardSets } = useGetMyCardSetsQuery(undefined, { skip: !token });
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedCardSetId, setSelectedCardSetId] = useState<string>('');
+
+  const handleCreateGame = async () => {
+    if (!selectedCardSetId) {
       toast.error('Выберите набор карточек');
       return;
     }
     try {
       const game = await createGame({
-        cardSetId,
+        cardSetId: selectedCardSetId,
         mode: GameMode.MULTIPLAYER,
         gridSize: GridSize.MEDIUM,
       }).unwrap();
-      toast.success('Игра создана! Ожидание игроков...');
+      toast.success('Игра создана!');
+      setShowCreateModal(false);
+      setSelectedCardSetId('');
       navigate(`/memo/${game.id}`);
     } catch (err: any) {
       toast.error(err?.data?.message || 'Не удалось создать игру');
@@ -54,14 +60,14 @@ export const MultiplayerPage: React.FC = () => {
     }
   };
 
-  // Filter out games where current user is already a player
-  const availableGames = waitingGames?.filter(
-    (game) => !game.players?.some((p) => p.userId === userId),
-  ) || [];
-
-  // Games where user is already a player (waiting to start)
+  // Games where current user is already a player
   const myWaitingGames = waitingGames?.filter(
     (game) => game.players?.some((p) => p.userId === userId),
+  ) || [];
+
+  // Games where current user is NOT a player
+  const availableGames = waitingGames?.filter(
+    (game) => !game.players?.some((p) => p.userId === userId),
   ) || [];
 
   if (!token) {
@@ -82,16 +88,21 @@ export const MultiplayerPage: React.FC = () => {
           ← Назад
         </button>
         <h1>🎮 Мультиплеер</h1>
-        <button className="refresh-btn" onClick={() => refetch()}>
-          🔄 Обновить
-        </button>
+        <div className="header-actions">
+          <button className="refresh-btn" onClick={() => refetch()}>
+            🔄 Обновить
+          </button>
+          <button className="create-btn" onClick={() => setShowCreateModal(true)}>
+            + Создать игру
+          </button>
+        </div>
       </div>
 
       {/* My waiting games */}
       {myWaitingGames.length > 0 && (
         <section className="multiplayer-section">
-          <h2> Мои ожидающие игры</h2>
-          <p className="section-hint">Нажмите чтобы продолжить ожидание или начать</p>
+          <h2> Мои игры</h2>
+          <p className="section-hint">Нажмите чтобы вернуться в комнату ожидания</p>
           <div className="games-list">
             {myWaitingGames.map((game) => (
               <div key={game.id} className="game-card my-game">
@@ -102,14 +113,18 @@ export const MultiplayerPage: React.FC = () => {
                       {game.gridRows}×{game.gridCols}
                     </span>
                     <span className="players-count">
-                      👥 {game.players?.length || 0} игроков
+                      👥 {game.players?.length || 0} / 6 игроков
                     </span>
                   </div>
                 </div>
                 <div className="game-players">
                   {game.players?.map((player) => (
-                    <span key={player.id} className="player-badge">
+                    <span
+                      key={player.id}
+                      className={`player-badge ${player.userId === userId ? 'me' : ''}`}
+                    >
                       {player.user?.email?.split('@')[0] || 'Игрок'}
+                      {player.userId === userId && ' (вы)'}
                     </span>
                   ))}
                 </div>
@@ -127,71 +142,106 @@ export const MultiplayerPage: React.FC = () => {
 
       {/* Available games to join */}
       <section className="multiplayer-section">
-        <h2> Ожидающие игры</h2>
-        <p className="section-hint">
-          {cardSetId
-            ? `Игры для набора "${cardSetId}"`
-            : 'Все доступные игры для подключения'}
-        </p>
+        <h2>🌍 Доступные игры</h2>
+        <p className="section-hint">Присоединяйтесь к играм других игроков</p>
 
         {isLoading ? (
           <p className="loading">Загрузка...</p>
         ) : availableGames.length > 0 ? (
           <div className="games-list">
-            {availableGames.map((game) => (
-              <div key={game.id} className="game-card">
-                <div className="game-info">
-                  <h3>{game.cardSet?.name || 'Набор карточек'}</h3>
-                  <div className="game-meta">
-                    <span className="grid-size">
-                      {game.gridRows}×{game.gridCols}
-                    </span>
-                    <span className="players-count">
-                      👥 {game.players?.length || 0} / 6 игроков
-                    </span>
+            {availableGames.map((game) => {
+              const creator = game.players?.[0];
+              return (
+                <div key={game.id} className="game-card">
+                  <div className="game-info">
+                    <h3>{game.cardSet?.name || 'Набор карточек'}</h3>
+                    <div className="game-meta">
+                      <span className="grid-size">
+                        {game.gridRows}×{game.gridCols}
+                      </span>
+                      <span className="players-count">
+                        👥 {game.players?.length || 0} / 6 игроков
+                      </span>
+                    </div>
+                    {creator && (
+                      <p className="game-creator">
+                        Создатель: <strong>{creator.user?.email?.split('@')[0] || 'Игрок'}</strong>
+                      </p>
+                    )}
                   </div>
+                  <div className="game-players">
+                    {game.players?.map((player) => (
+                      <span key={player.id} className="player-badge">
+                        {player.user?.email?.split('@')[0] || 'Игрок'}
+                        {player.userId === creator?.userId && ' (хост)'}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    className="join-btn"
+                    onClick={() => handleJoinGame(game.id)}
+                  >
+                    Подключиться
+                  </button>
                 </div>
-                <div className="game-players">
-                  {game.players?.map((player) => (
-                    <span key={player.id} className="player-badge">
-                      {player.user?.email?.split('@')[0] || 'Игрок'}
-                      {player.userId === game.players?.[0]?.userId && ' (хост)'}
-                    </span>
-                  ))}
-                </div>
-                <button
-                  className="join-btn"
-                  onClick={() => handleJoinGame(game.id)}
-                >
-                  Подключиться
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="no-games">
-            <p>Нет ожидающих игр</p>
-            {cardSetId && (
-              <button className="create-btn" onClick={handleCreateNewGame}>
-                + Создать новую игру для этого набора
-              </button>
-            )}
+            <p>Нет доступных игр</p>
+            <p className="no-games-hint">Создайте свою игру и ожидайте игроков!</p>
+            <button className="create-btn" onClick={() => setShowCreateModal(true)}>
+              + Создать игру
+            </button>
           </div>
         )}
       </section>
 
-      {!cardSetId && (
-        <section className="multiplayer-section">
-          <h2>💡 Как играть</h2>
-          <div className="how-to-play">
-            <ol>
-              <li>Перейдите в <strong>Наборы карточек</strong></li>
-              <li>Выберите набор и нажмите <strong>Мультиплеер</strong></li>
-              <li>Создайте игру или присоединитесь к существующей</li>
-              <li>Ожидайте других игроков и начните игру</li>
-            </ol>
+      {/* Create Game Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Создать мультиплеер игру</h2>
+            <p className="modal-hint">Выберите набор карточек для игры</p>
+
+            {myCardSets && myCardSets.length > 0 ? (
+              <div className="cardset-list">
+                {myCardSets.map((cardSet) => (
+                  <button
+                    key={cardSet.id}
+                    className={`cardset-item ${selectedCardSetId === cardSet.id ? 'selected' : ''}`}
+                    onClick={() => setSelectedCardSetId(cardSet.id)}
+                  >
+                    <span className="cardset-name">{cardSet.name}</span>
+                    <span className="cardset-cards">{cardSet.cardsCount || 0} карточек</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="no-cardsets">
+                <p>У вас нет наборов карточек</p>
+                <button onClick={() => { setShowCreateModal(false); navigate('/memo'); }}>
+                  Создать набор
+                </button>
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button type="button" onClick={() => setShowCreateModal(false)}>
+                Отмена
+              </button>
+              <button
+                type="button"
+                className="primary"
+                onClick={handleCreateGame}
+                disabled={!selectedCardSetId}
+              >
+                Создать игру
+              </button>
+            </div>
           </div>
-        </section>
+        </div>
       )}
     </div>
   );

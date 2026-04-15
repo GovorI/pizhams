@@ -20,6 +20,11 @@
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .back-btn {
   background: #f0f0f0;
   border: none;
@@ -134,6 +139,21 @@
   font-size: 0.85rem;
 }
 
+.player-badge.me {
+  background: #667eea;
+  color: white;
+}
+
+.game-creator {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 8px 0 0;
+}
+
+.game-creator strong {
+  color: #333;
+}
+
 .join-btn {
   width: 100%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -157,6 +177,11 @@
   background: white;
   border-radius: 16px;
   color: #666;
+}
+
+.no-games-hint {
+  margin-bottom: 16px;
+  font-size: 0.95rem;
 }
 
 .create-btn {
@@ -228,6 +253,80 @@
   font-size: 1rem;
 }
 
+/* Modal for creating game */
+.modal-hint {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.cardset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.cardset-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cardset-item:hover {
+  border-color: #667eea;
+}
+
+.cardset-item.selected {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.cardset-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.cardset-cards {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.no-cardsets {
+  text-align: center;
+  padding: 24px;
+  color: #666;
+}
+
+.no-cardsets button {
+  margin-top: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.modal-actions button.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+.modal-actions button.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 576px) {
   .multiplayer-header {
     flex-direction: column;
@@ -237,4 +336,27 @@
   .games-list {
     grid-template-columns: 1fr;
   }
+}
+
+/* How to play section */
+.how-to-play {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.how-to-play ol {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.how-to-play li {
+  margin-bottom: 12px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.how-to-play li:last-child {
+  margin-bottom: 0;
 }
