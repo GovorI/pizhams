@@ -164,6 +164,16 @@ export const MemoGamePage: React.FC = () => {
   const allMatched = shuffledCards.length > 0 && matchedCards.length === shuffledCards.length;
   const isWaiting = game.status === 'waiting' && game.mode === 'multiplayer';
 
+  // Debug: log who is the host
+  if (isWaiting && game.players) {
+    console.log('🎮 Waiting room debug:', {
+      userId,
+      hostId: game.players[0]?.userId,
+      isHost: game.players[0]?.userId === userId,
+      players: game.players.map(p => ({ id: p.id, userId: p.userId, email: p.user?.email })),
+    });
+  }
+
   return (
     <div className="memo-game-page">
       <div className="memo-game-header">

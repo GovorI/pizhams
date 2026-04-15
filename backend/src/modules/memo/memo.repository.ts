@@ -133,7 +133,8 @@ export class MemoRepository {
       .leftJoinAndSelect('game.currentPlayer', 'currentPlayer')
       .leftJoinAndSelect('game.winner', 'winner')
       .where('game.id = :id', { id })
-      .orderBy('cards.sortOrder', 'ASC')
+      .orderBy('players.joinedAt', 'ASC')
+      .addOrderBy('cards.sortOrder', 'ASC')
       .getOne();
   }
 
