@@ -9,6 +9,8 @@ import { UsersModule } from '../users/users.module';
 import { User } from '../users/entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuditService } from '../../common/services/audit.service';
+import { AuthRateLimitGuard } from '../../common/guards/auth-rate-limit.guard';
+import { CleanupService } from '../../common/guards/cleanup.service';
 import type { JwtModuleOptions } from '@nestjs/jwt';
 
 @Global()
@@ -32,7 +34,7 @@ import type { JwtModuleOptions } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, AuditService],
-  exports: [AuthService, JwtModule, AuditService],
+  providers: [AuthService, JwtStrategy, AuditService, AuthRateLimitGuard, CleanupService],
+  exports: [AuthService, JwtModule, AuditService, AuthRateLimitGuard],
 })
 export class AuthModule {}

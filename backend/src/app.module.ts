@@ -14,6 +14,7 @@ import { StatisticsModule } from './modules/statistics/statistics.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { MemoModule } from './modules/memo/memo.module';
 import { S3Module } from './modules/s3/s3.module';
+import { AdminSecurityController } from './common/controllers/admin.controller';
 
 @Module({
   imports: [
@@ -50,7 +51,7 @@ import { S3Module } from './modules/s3/s3.module';
     ReviewsModule,
     MemoModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AdminSecurityController],
   providers: [AppService],
 })
 export class AppModule {}

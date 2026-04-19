@@ -92,4 +92,16 @@ export class AuthService {
       user: result,
     };
   }
+
+  async requestPasswordReset(email: string): Promise<void> {
+    await this.usersService.requestPasswordReset(email);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    return await this.usersService.resetPassword(token, newPassword);
+  }
+
+  async validateResetToken(token: string): Promise<boolean> {
+    return await this.usersService.validateResetToken(token);
+  }
 }
